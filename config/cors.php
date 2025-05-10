@@ -7,8 +7,10 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://aeddi-antsiranana.vercel.app'
+        'https://aeddi-antsiranana.vercel.app',
+        'https://www.aeddi-antsiranana.vercel.app'
     ],
+
 
     'allowed_headers' => ['*'],
 
