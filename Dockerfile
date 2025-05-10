@@ -1,4 +1,4 @@
-# Utiliser une image de base PHP avec Apache et une version plus récente de PHP
+# Utiliser une image de base PHP avec Apache
 FROM php:8.1-apache
 
 # Installer les dépendances nécessaires
@@ -16,6 +16,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copier le projet Laravel dans le conteneur
 COPY . /var/www/html
+
+# Copier le fichier de configuration Apache dans le conteneur
+COPY laravel.conf /etc/apache2/sites-available/000-default.conf
 
 # Installer les dépendances PHP
 RUN composer install
