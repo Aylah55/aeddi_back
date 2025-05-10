@@ -1,4 +1,4 @@
-# Utiliser une image de base PHP avec Apache et une version plus récente de PHP
+# Utiliser une image de base PHP avec Apache
 FROM php:8.1-apache
 
 # Installer les dépendances nécessaires
