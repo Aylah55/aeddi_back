@@ -8,7 +8,8 @@ return [
 
     'allowed_origins' => [
         'https://aeddi-antsiranana.vercel.app',
-        'https://www.aeddi-antsiranana.vercel.app'
+        'https://www.aeddi-antsiranana.vercel.app',
+        'https://aeddi-antsiranana.onrender.com'
     ],
 
 

@@ -3,8 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InscriptionController;
-Route::get('/test', function () {
-    return response()->json(['message' => 'Connexion backend OK']);
+Route::get('/ping', function () {
+    return response()->json(['message' => 'Frontend et Backend sont connectés !']);
 });
-
-Route::post('/inscription', [InscriptionController::class, 'inscrire']);
