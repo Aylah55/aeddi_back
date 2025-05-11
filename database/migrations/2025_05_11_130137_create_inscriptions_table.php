@@ -19,6 +19,7 @@ class CreateInscriptionsTable extends Migration
         });
     }
 
+
     public function down()
     {
         Schema::dropIfExists('inscriptions');
