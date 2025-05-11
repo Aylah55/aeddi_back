@@ -5,8 +5,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/db-test', function () {
     try {
         DB::connection()->getPdo();
-        return "Connexion à la base de données réussie !";
+        return "Connexion réussie à la base PostgreSQL !";
     } catch (\Exception $e) {
-        return "Erreur de connexion : " . $e->getMessage();
+        return response()->json([
+            'error' => 'Erreur de connexion',
+            'message' => $e->getMessage()
+        ], 500);
     }
 });
