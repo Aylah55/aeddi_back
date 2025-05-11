@@ -63,18 +63,24 @@ return [
             ]) : [],
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'ep-tiny-term-a4go5es7-pooler.us-east-1.aws.neon.tech?options=endpoint%3Dep-tiny-term-a4go5es7'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'AEDDI_backend'),
-            'username' => env('DB_USERNAME', 'neondb_owner'),
-            'password' => env('DB_PASSWORD', 'npg_A1RVQ7DIHusF'),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
-            'sslmode' => 'require',
-        ],
+'pgsql' => [
+    'driver' => 'pgsql',
+    'url' => env('DATABASE_URL'),
+    'host' => env('DB_HOST', 'ep-tiny-term-a4go5es7-pooler.us-east-1.aws.neon.tech'),
+    'port' => env('DB_PORT', '5432'),
+    'database' => env('DB_DATABASE', 'AEDDI_backend'),
+    'username' => env('DB_USERNAME', 'neondb_owner'),
+    'password' => env('DB_PASSWORD', 'npg_A1RVQ7DIHusF'),
+    'charset' => 'utf8',
+    'prefix' => '',
+    'prefix_indexes' => true,
+    'schema' => 'public',
+    'sslmode' => 'require',
+    'options' => [
+        PDO::PGSQL_ATTR_CONNECTION_STRING => 'options=endpoint%3Dep-tiny-term-a4go5es7',
+    ],
+],
+
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
