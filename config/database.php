@@ -63,14 +63,13 @@ return [
             ]) : [],
         ],
 
-
         'pgsql' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', 'ep-tiny-term-a4go5es7-pooler.us-east-1.aws.neon.tech?options=endpoint%3Dep-tiny-term-a4go5es7'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+            'database' => env('DB_DATABASE', 'AEDDI_backend'),
+            'username' => env('DB_USERNAME', 'neondb_owner'),
+            'password' => env('DB_PASSWORD', 'npg_A1RVQ7DIHusF'),
             'charset' => 'utf8',
             'prefix' => '',
             'schema' => 'public',
