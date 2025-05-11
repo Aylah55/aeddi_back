@@ -1,12 +1,13 @@
 # Utiliser une image de base PHP avec Apache
 FROM php:8.1-apache
 
-# Installer les dépendances nécessaires
+# Installer les dépendances nécessaires pour PostgreSQL et d'autres extensions
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    && docker-php-ext-install pdo pdo_mysql zip
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql zip
 
 # Activer le module Apache rewrite
 RUN a2enmod rewrite
