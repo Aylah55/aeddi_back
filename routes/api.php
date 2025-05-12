@@ -11,8 +11,6 @@ Route::get('/ping', function () {
 });
 Route::post('/inscription', [AuthController::class, 'register']);
 Route::post('/login', [ConnexionController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/profile/{id}/update', [UserController::class, 'updateProfile']);
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return response()->json($request->user());
-});
+Route::middleware('auth:sanctum')->get('/profile/{id}', [UserController::class, 'show']);
+
 
