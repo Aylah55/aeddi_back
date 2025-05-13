@@ -16,43 +16,27 @@ return [
     */
 
 
-    'paths' => [
-        'api/*',
-        'sanctum/csrf-cookie',
-        'login',
-        'logout',
-        'register',
-        'profile/*',
-        'users*'
-    ],
+    'paths' => ['*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'http://localhost:8000',
+        'https://aeddi-antsiranana.onrender.com',
+        'https://aeddi-backend.onrender.com'
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => [
-        'Origin',
-        'Content-Type',
-        'X-Auth-Token',
-        'X-Requested-With',
-        'Accept',
-        'Authorization',
-        'X-XSRF-TOKEN',
-        'X-CSRF-TOKEN',
-        'X-Socket-Id',
-    ],
+    'allowed_headers' => ['*'],
 
-    'exposed_headers' => [
-        'Authorization',
-        'X-CSRF-TOKEN',
-        'X-XSRF-TOKEN',
-        'x-socket-id',
-    ],
+    'exposed_headers' => ['*'],
 
     'max_age' => 0,
 
     'supports_credentials' => true,
+    'max_age' => 0,
+    'allowed_origins_patterns' => [],
 
 ];
