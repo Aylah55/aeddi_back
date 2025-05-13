@@ -12,11 +12,7 @@ class ConnexionController extends Controller
     {
         // Répondre aux pré-requêtes OPTIONS
         if ($request->isMethod('OPTIONS')) {
-            return response('', 200)
-                ->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-TOKEN')
-                ->header('Access-Control-Allow-Credentials', 'true');
+            return response()->json(['status' => 'OK'], 200);
         }
 
         // Validation des champs requis
@@ -31,12 +27,7 @@ class ConnexionController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Email ou mot de passe incorrect.'
-                ], 401)->withHeaders([
-                    'Access-Control-Allow-Origin' => '*',
-                    'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                    'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-                    'Access-Control-Allow-Credentials' => 'true'
-                ]);
+                ], 401);
             }
 
 
@@ -64,11 +55,6 @@ class ConnexionController extends Controller
                     'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
                     'last_login_at' => $user->last_login_at,
                 ]
-            ])->withHeaders([
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-                'Access-Control-Allow-Credentials' => 'true'
             ]);
 
         } catch (\Exception $e) {
@@ -76,12 +62,7 @@ class ConnexionController extends Controller
                 'status' => 'error',
                 'message' => 'Une erreur est survenue lors de la connexion',
                 'error' => $e->getMessage()
-            ], 500)->withHeaders([
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-                'Access-Control-Allow-Credentials' => 'true'
-            ]);
+            ], 500);
         }
     }
 }
