@@ -10,16 +10,42 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    
-public function show()
-{
-    $user = Auth::user();
-    $user->photo_url = $user->photo ? url('storage/' . $user->photo) : null;
+    public function show()
+    {
+        $user = Auth::user();
+        $user->photo_url = $user->photo ? url('storage/' . $user->photo) : null;
 
-    return response()->json([
-        'user' => $user
-    ]);
-}
+        return response()->json([
+            'user' => $user
+        ]);
+    }
 
-    
+    /**
+     * Déconnecter l'utilisateur (invalider le token)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        try {
+            // Récupérer l'utilisateur authentifié
+            $user = $request->user();
+            
+            // Supprimer le token d'accès actuel
+            $user->tokens()->delete();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Déconnexion réussie',
+            ], 200);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Échec de la déconnexion',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
