@@ -12,7 +12,12 @@ class ConnexionController extends Controller
     {
         // Répondre aux pré-requêtes OPTIONS
         if ($request->isMethod('OPTIONS')) {
-            return response()->json(['status' => 'OK'], 200);
+            return response()->json([], 200)
+                ->header('Access-Control-Allow-Origin', 'https://aeddi-antsiranana.onrender.com')
+                ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN')
+                ->header('Access-Control-Allow-Credentials', 'true')
+                ->header('Access-Control-Max-Age', '86400');
         }
 
         // Validation des champs requis
@@ -27,7 +32,9 @@ class ConnexionController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Email ou mot de passe incorrect.'
-                ], 401);
+                ], 401)
+                    ->header('Access-Control-Allow-Origin', 'https://aeddi-antsiranana.onrender.com')
+                    ->header('Access-Control-Allow-Credentials', 'true');
             }
 
 
@@ -55,14 +62,18 @@ class ConnexionController extends Controller
                     'photo' => $user->photo ? asset('storage/' . $user->photo) : null,
                     'last_login_at' => $user->last_login_at,
                 ]
-            ]);
+            ])
+                ->header('Access-Control-Allow-Origin', 'https://aeddi-antsiranana.onrender.com')
+                ->header('Access-Control-Allow-Credentials', 'true');
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Une erreur est survenue lors de la connexion',
                 'error' => $e->getMessage()
-            ], 500);
+            ], 500)
+                ->header('Access-Control-Allow-Origin', 'https://aeddi-antsiranana.onrender.com')
+                ->header('Access-Control-Allow-Credentials', 'true');
         }
     }
 }
