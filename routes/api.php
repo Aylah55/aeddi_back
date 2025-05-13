@@ -13,5 +13,6 @@ Route::get('/ping', function () {
 Route::post('/inscription', [AuthController::class, 'register']);
 Route::post('/login', [ConnexionController::class, 'login']);
 Route::middleware('auth:sanctum')->get('/profile/{id}', [UserController::class, 'show']);
+Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);
 Route::put('/profile/{id}', [UpdateProfilUserController::class, 'update']);
 
