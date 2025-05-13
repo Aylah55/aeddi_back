@@ -16,18 +16,19 @@ return [
     */
 
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout', 'register'],
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'login',
+        'logout',
+        'register',
+        'profile/*',
+        'users*'
+    ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'https://aeddi-antsiranana.vercel.app',
-        'https://www.aeddi-antsiranana.vercel.app',
-        'https://aeddi-antsiranana.onrender.com',
-        'https://aeddi-backend.onrender.com'
-    ],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
@@ -40,12 +41,14 @@ return [
         'Authorization',
         'X-XSRF-TOKEN',
         'X-CSRF-TOKEN',
+        'X-Socket-Id',
     ],
 
     'exposed_headers' => [
         'Authorization',
         'X-CSRF-TOKEN',
         'X-XSRF-TOKEN',
+        'x-socket-id',
     ],
 
     'max_age' => 0,
