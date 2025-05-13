@@ -20,12 +20,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:3000',
-        'http://localhost:8000',
-        'https://aeddi-antsiranana.onrender.com',
-        'https://aeddi-backend.onrender.com'
-    ],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
@@ -36,7 +31,5 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => true,
-    'max_age' => 0,
-    'allowed_origins_patterns' => [],
 
 ];
