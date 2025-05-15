@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip
 
-# Activer le module Apache rewrite
-RUN a2enmod rewrite
+# Activer les modules Apache rewrite ET headers
+RUN a2enmod rewrite headers
 
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
