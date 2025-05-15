@@ -1,0 +1,45 @@
+# Activer le module de réécriture
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Gérer les requêtes OPTIONS (prévol CORS)
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L,E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
+
+    # Rediriger les URL sans slash final
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Envoyer les requêtes au contrôleur frontal
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Activer les en-têtes CORS
+<IfModule mod_headers.c>
+    # Autoriser les origines spécifiques
+    SetEnvIf Origin "^https://aeddi-antsiranana\.onrender\.com$" CORS_ALLOW_ORIGIN=$0
+    SetEnvIf Origin "^http://localhost:\d+$" CORS_ALLOW_ORIGIN=$0
+    
+    # Définir les en-têtes CORS
+    Header set Access-Control-Allow-Origin %{CORS_ALLOW_ORIGIN}e env=CORS_ALLOW_ORIGIN
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept"
+    Header always set Access-Control-Allow-Credentials "true"
+    Header always set Access-Control-Max-Age "86400"
+    Header always set Access-Control-Expose-Headers "Authorization, X-CSRF-TOKEN, X-XSRF-TOKEN"
+    
+    # Gérer les requêtes OPTIONS (prévol CORS)
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L,E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
+</IfModule>
+
+# Activer le passage de l'en-tête Authorization
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
