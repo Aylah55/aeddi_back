@@ -27,13 +27,17 @@
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
 Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept"
 Header always set Access-Control-Allow-Credentials "true"
 Header always set Access-Control-Max-Age "86400"
+Header always set Access-Control-Expose-Headers "Authorization, X-CSRF-TOKEN, X-XSRF-TOKEN"
 
 # Handle preflight requests
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_METHOD} OPTIONS
-    RewriteRule ^(.*)$ $1 [R=200,L]
+    RewriteRule ^(.*)$ $1 [R=200,L,E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
 </IfModule>
+
+# Ensure the Authorization header is passed through
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
