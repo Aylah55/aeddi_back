@@ -14,46 +14,46 @@ class Cors
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, \Closure $next)
     {
+        // Liste des origines autorisées
         $allowedOrigins = [
-            'http://localhost:3000',
             'https://aeddi-antsiranana.onrender.com',
-            'https://aeddi-backend.onrender.com',
-            'http://localhost:8000'
+            'http://localhost:3000',  // Pour le développement local
         ];
 
+        // Récupérer l'origine de la requête
         $origin = $request->header('Origin');
-        
-        // Définir les en-têtes CORS par défaut
-        $headers = [
-            'Access-Control-Allow-Methods'     => 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers'     => 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept',
-            'Access-Control-Allow-Credentials' => 'true',
-            'Access-Control-Max-Age'           => '86400',
-            'Access-Control-Expose-Headers'    => 'Authorization, X-CSRF-TOKEN, X-XSRF-TOKEN'
-        ];
 
-        // Si l'origine est dans la liste des origines autorisées, l'utiliser, sinon utiliser '*'
+        // Vérifier si l'origine est autorisée
         if (in_array($origin, $allowedOrigins)) {
-            $headers['Access-Control-Allow-Origin'] = $origin;
+            $headers = [
+                'Access-Control-Allow-Origin'      => $origin,
+                'Access-Control-Allow-Methods'     => 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers'     => 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept',
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Max-Age'           => '86400',
+                'Access-Control-Expose-Headers'    => 'Authorization, X-CSRF-TOKEN, X-XSRF-TOKEN'
+            ];
         } else {
-            $headers['Access-Control-Allow-Origin'] = '*';
+            // Si l'origine n'est pas autorisée, on retourne une erreur CORS
+            return response('Not allowed', 403)
+                ->header('Access-Control-Allow-Origin', $origin)
+                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept');
         }
-
 
         // Gestion des requêtes OPTIONS (prévol)
         if ($request->isMethod('OPTIONS')) {
             return response('', 200, $headers);
         }
 
-
         // Pour les autres requêtes, exécuter la requête et ajouter les en-têtes
         $response = $next($request);
 
         // Ajouter les en-têtes CORS à la réponse
         foreach ($headers as $key => $value) {
-            $response->headers->set($key, $value);
+            $response->header($key, $value);
         }
 
         return $response;
