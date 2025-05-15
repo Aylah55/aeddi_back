@@ -31,5 +31,8 @@ RUN composer install --prefer-dist --no-dev --optimize-autoloader
 # ✅ Créer le lien symbolique storage/public
 RUN php artisan storage:link
 
+RUN php artisan config:clear && php artisan config:cache
+
+
 # Exposer le port 80
 EXPOSE 80
