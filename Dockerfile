@@ -58,5 +58,14 @@ RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 # Exposer le port 10000 (port par défaut de Render)
 EXPOSE 10000
 
+# Copier la configuration Apache
+COPY laravel.conf /etc/apache2/sites-available/000-default.conf
+
+# Activer le site
+RUN a2ensite 000-default.conf
+
+# Définir le répertoire de travail sur public
+WORKDIR /var/www/html/public
+
 # Commande de démarrage
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
