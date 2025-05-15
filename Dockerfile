@@ -29,7 +29,7 @@ WORKDIR /var/www/html
 # Copier uniquement les fichiers nécessaires pour l'installation des dépendances
 COPY composer.json composer.lock ./
 
-# Installer les dépendances PHP avec gestion d'erreur
+# Installer les dépendances PHP
 RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-scripts || \
     (echo "Composer install with --ignore-platform-reqs" && \
      composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-scripts --ignore-platform-reqs)
@@ -37,24 +37,17 @@ RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-interacti
 # Copier le reste de l'application
 COPY . .
 
+# Créer la structure de dossiers nécessaire
+RUN mkdir -p storage/app/public \
+    && mkdir -p storage/framework/{sessions,views,cache} \
+    && mkdir -p storage/logs
+
 # Configurer les permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
-# Générer la clé d'application si elle n'existe pas
-RUN if [ ! -f .env ]; then \
-        cp .env.example .env && \
-        php artisan key:generate; \
-    fi
-
-# Créer le lien symbolique storage
-RUN php artisan storage:link
-
-# Nettoyer et optimiser
-RUN php artisan config:clear \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# Créer manuellement le lien symbolique au lieu d'utiliser artisan storage:link
+RUN ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
 
 # Copier la configuration Apache
 COPY laravel.conf /etc/apache2/sites-available/000-default.conf
