@@ -1,28 +1,28 @@
 <?php
 
 return [
+
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    'allowed_methods' => ['*'], // Autorise toutes les méthodes HTTP (GET, POST, etc.)
 
-    'allowed_origins' => ['https://aeddi-antsiranana.onrender.com', 'http://localhost:*'],
+    'allowed_origins' => [
+        'https://aeddi-antsiranana.onrender.com',
+        'http://localhost:3000', // Si tu testes localement, précise un port concret
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-TOKEN', 'X-XSRF-TOKEN', 'Accept'],
+    'allowed_headers' => ['*'], // Autorise tous les headers nécessaires
 
     'exposed_headers' => [
         'Authorization',
         'X-CSRF-TOKEN',
         'X-XSRF-TOKEN',
-        'X-Requested-With',
-        'Content-Type',
-        'Accept'
     ],
 
     'max_age' => 86400,
 
-    'supports_credentials' => true,
+    'supports_credentials' => true, // ✅ Indispensable pour envoyer cookies/session
 
-    'allowed_credentials' => true,
 ];
