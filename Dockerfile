@@ -1,7 +1,10 @@
 # Utiliser une image de base PHP avec Apache
 FROM php:8.1-apache
 
-# Installer les dépendances nécessaires pour PostgreSQL et d'autres extensions
+# Définir les variables d'environnement nécessaires
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Installer les dépendances système
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
@@ -9,49 +12,45 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip
 
-# Activer les modules Apache rewrite ET headers
+# Activer les modules Apache nécessaires
 RUN a2enmod rewrite headers
 
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Créer un utilisateur non-root pour exécuter Composer et l'application
-RUN groupadd -r aeddi && useradd -r -g aeddi aeddi
-
-# Créer le répertoire de l'application
-RUN mkdir -p /var/www/html && chown -R aeddi:aeddi /var/www/html
-
-# Copier le projet Laravel dans le conteneur
-COPY --chown=aeddi:aeddi . /var/www/html
-
-# Se déplacer dans le répertoire de travail
+# Créer et définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Définir les permissions
-RUN chmod -R 775 storage bootstrap/cache
+# Copier les fichiers du projet
+COPY . .
 
-# Installer les dépendances PHP en tant qu'utilisateur non-root
-USER aeddi
-RUN composer install --prefer-dist --no-dev --optimize-autoloader
+# Installer les dépendances PHP
+RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction
 
-# Créer le lien symbolique storage/public
+# Configurer les permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
+
+# Créer le lien symbolique storage
 RUN php artisan storage:link
 
-# Nettoyer le cache de configuration
-RUN php artisan config:clear && php artisan config:cache
+# Nettoyer le cache
+RUN php artisan config:clear \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
-# Revenir à root pour les commandes système
-USER root
-
-# Copier le fichier de configuration Apache dans le conteneur
+# Copier la configuration Apache
 COPY laravel.conf /etc/apache2/sites-available/000-default.conf
-
-# Définir les permissions pour Apache
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Définir l'utilisateur pour Apache
 RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 
-# Exposer le port 80
-EXPOSE 80
+# Définir le répertoire de travail
+WORKDIR /var/www/html
+
+# Exposer le port 10000 (port par défaut de Render)
+EXPOSE 10000
+
+# Commande de démarrage
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
