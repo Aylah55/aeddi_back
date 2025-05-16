@@ -1,18 +1,12 @@
 services:
   - type: web
     name: AEDDI-backend
-    env: php
+    env: docker
     plan: free
-    region: frankfurt  # ou change selon ta région préférée
+    region: frankfurt
     branch: main
-    buildCommand: >
-      composer install --no-dev --optimize-autoloader &&
-      php artisan key:generate &&
-      php artisan migrate --force &&
-      php artisan config:cache &&
-      php artisan route:cache &&
-      php artisan view:cache
-    startCommand: php -S 0.0.0.0:10000 -t public
+    dockerfilePath: ./Dockerfile
+    buildContext: .
     envVars:
       - key: APP_ENV
         value: production
