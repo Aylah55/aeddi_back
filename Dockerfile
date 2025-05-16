@@ -49,8 +49,11 @@ RUN chown -R www-data:www-data /var/www/html \
 # Créer manuellement le lien symbolique au lieu d'utiliser artisan storage:link
 RUN ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
 
-# Copier la configuration Apache
+# Copier la configuration Apache Laravel
 COPY laravel.conf /etc/apache2/sites-available/000-default.conf
+
+# Désactiver le site par défaut puis activer ta config Laravel
+RUN a2dissite 000-default.conf && a2ensite 000-default.conf
 
 # Définir l'utilisateur pour Apache
 RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
@@ -58,14 +61,8 @@ RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 # Exposer le port 10000 (port par défaut de Render)
 EXPOSE 10000
 
-# Copier la configuration Apache
-COPY laravel.conf /etc/apache2/sites-available/000-default.conf
-
-# Activer le site
-RUN a2ensite 000-default.conf
-
-# Définir le répertoire de travail sur public
+# Définir le répertoire de travail sur public (important pour Laravel)
 WORKDIR /var/www/html/public
 
-# Commande de démarrage
+# Commande de démarrage Apache en mode premier plan
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
