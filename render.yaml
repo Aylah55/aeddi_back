@@ -6,14 +6,11 @@ services:
     region: frankfurt
     branch: main
     dockerfilePath: ./Dockerfile
-    buildContext: .
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
-      - key: APP_KEY
-        sync: false
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
