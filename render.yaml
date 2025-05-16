@@ -1,13 +1,34 @@
 services:
   - type: web
-    name: AEDDI_backend
+    name: AEDDI-backend
     env: php
-    buildCommand: "composer install"
-    startCommand: "php artisan serve --host=0.0.0.0 --port=8080"
+    plan: free
+    region: frankfurt  # ou change selon ta région préférée
+    branch: main
+    buildCommand: >
+      composer install --no-dev --optimize-autoloader &&
+      php artisan key:generate &&
+      php artisan migrate --force &&
+      php artisan config:cache &&
+      php artisan route:cache &&
+      php artisan view:cache
+    startCommand: php -S 0.0.0.0:10000 -t public
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: "false"
+        value: false
       - key: APP_KEY
-        value: "base64:YOUR_APP_KEY"
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: ton-hôte-mysql.render.com
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        value: nom_de_ta_db
+      - key: DB_USERNAME
+        value: ton_utilisateur
+      - key: DB_PASSWORD
+        sync: false
