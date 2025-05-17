@@ -61,18 +61,19 @@ return [
             ],
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'ep-tiny-term-a4go5es7-pooler.us-east-1.aws.neon.tech?options=endpoint%3Dep-tiny-term-a4go5es7'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'AEDDI_backend'),
-            'username' => env('DB_USERNAME', 'neondb_owner'),
-            'password' => env('DB_PASSWORD', 'npg_A1RVQ7DIHusF'),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
-            'sslmode' => 'require',
-        ],
+    'pgsql' => [
+        'driver' => 'pgsql',
+        'host' => env('DB_HOST', 'dpg-d0gbk0buibrs73ff9g80-a.oregon-postgres.render.com'),
+        'port' => env('DB_PORT', '5432'),
+        'database' => env('DB_DATABASE', 'aeddi'),
+        'username' => env('DB_USERNAME', 'aeddi_user'),
+        'password' => env('DB_PASSWORD', '6Se7DSyXRpau9so3NVdN3EvuMVjinQ3f'),
+        'charset' => 'utf8',
+        'prefix' => '',
+        'schema' => 'public',
+        'sslmode' => 'require',
+    ],
+
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
