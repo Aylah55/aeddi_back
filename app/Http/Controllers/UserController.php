@@ -139,52 +139,6 @@ class UserController extends Controller
                 ->header('Access-Control-Allow-Credentials', 'true');
         }
 
-<<<<<<< HEAD
-        $validator = Validator::make($request->all(), [
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Validation échouée', 'errors' => $validator->errors()], 422);
-        }
-
-        $user->nom = $request->nom;
-        $user->prenom = $request->prenom;
-        $user->email = $request->email;
-
-        if ($request->hasFile('photo')) {
-            \Log::info('Début de l\'upload de la photo');
-            \Log::info('Type de fichier: ' . $request->file('photo')->getClientMimeType());
-            \Log::info('Taille du fichier: ' . $request->file('photo')->getSize() . ' bytes');
-
-            // Supprimer l'ancienne photo si existante
-            if ($user->photo) {
-                \Log::info('Suppression de l\'ancienne photo: ' . $user->photo);
-                Storage::disk('public')->delete($user->photo);
-            }
-
-            $photoPath = $request->file('photo')->store('photos', 'public');
-            \Log::info('Photo sauvegardée avec chemin: ' . $photoPath);
-            $user->photo = $photoPath;
-        }
-
-        $user->save();
-        \Log::info('Profil mis à jour avec succès');
-        \Log::info('Informations utilisateur sauvegardées:', [
-            'nom' => $user->nom,
-            'prenom' => $user->prenom,
-            'email' => $user->email,
-            'photo' => $user->photo
-        ]);
-
-        return response()->json([
-            'message' => 'Profil mis à jour avec succès',
-            'user' => $user
-        ]);
-=======
         try {
             // Récupérer l'utilisateur authentifié
             $user = $request->user();
@@ -226,6 +180,5 @@ class UserController extends Controller
                 'Access-Control-Allow-Credentials' => 'true'
             ]);
         }
->>>>>>> d3dfcaebd25473a63a9c55a70d884c4e131f6c98
     }
 }
