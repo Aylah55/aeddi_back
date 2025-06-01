@@ -65,7 +65,7 @@ class AuthController extends Controller
             Log::info('Données:', array_except($userData, ['password']));
 
             $user = User::create($userData);
-
+            
             if (!$user) {
                 throw new \Exception('Échec de la création de l\'utilisateur dans la base de données');
             }
@@ -98,6 +98,7 @@ class AuthController extends Controller
             Log::info('=== RÉPONSE PRÉPARÉE ===');
             Log::info('Structure de la réponse:', array_keys($response));
             Log::info('Structure user:', array_keys($response['user']));
+            Log::info('Réponse complète:', array_except($response, ['token']));
 
             return response()->json($response);
 
@@ -105,6 +106,7 @@ class AuthController extends Controller
             Log::error('=== ERREUR LORS DE L\'INSCRIPTION ===');
             Log::error('Message:', ['error' => $e->getMessage()]);
             Log::error('Trace:', ['trace' => $e->getTraceAsString()]);
+            Log::error('Type d\'erreur:', ['type' => get_class($e)]);
 
             return response()->json([
                 'status' => 'error',
