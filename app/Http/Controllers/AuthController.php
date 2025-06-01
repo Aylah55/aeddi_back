@@ -70,15 +70,14 @@ class AuthController extends Controller
             $response = [
                 'status' => 'success',
                 'message' => 'Utilisateur enregistré avec succès',
+                'token' => $token,
                 'user' => [
                     'id' => $user->id,
                     'nom' => $user->nom,
                     'prenom' => $user->prenom,
                     'email' => $user->email,
                     'photo_url' => $user->photo ? asset('storage/' . $user->photo) : null,
-                ],
-                'token' => $token,
-                'token_type' => 'Bearer',
+                ]
             ];
 
             \Log::info('Envoi de la réponse de succès');
