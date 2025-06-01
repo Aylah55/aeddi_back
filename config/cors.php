@@ -18,7 +18,8 @@ return [
         'Authorization',
         'X-CSRF-TOKEN',
         'X-XSRF-TOKEN',
-        'Accept'
+        'Accept',
+        'Origin'
     ],
 
     'exposed_headers' => [
