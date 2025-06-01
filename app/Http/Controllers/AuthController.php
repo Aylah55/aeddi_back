@@ -74,7 +74,7 @@ class AuthController extends Controller
             // Création du token
             try {
                 $token = $user->createToken('auth_token')->plainTextToken;
-                \Log::info('=== TOKEN CRÉÉ ===');
+                \Log::info('=== TOKEN CRÉÉ ===', ['token_length' => strlen($token)]);
             } catch (\Exception $e) {
                 \Log::error('Erreur lors de la création du token:', ['error' => $e->getMessage()]);
                 throw new \Exception('Erreur lors de la création du token: ' . $e->getMessage());
@@ -98,11 +98,7 @@ class AuthController extends Controller
             \Log::info('Structure de la réponse:', array_keys($response));
             \Log::info('Structure user:', array_keys($response['user']));
 
-            return response()->json($response)
-                ->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
-                ->header('Accept', 'application/json');
+            return response()->json($response);
 
         } catch (\Exception $e) {
             \Log::error('=== ERREUR LORS DE L\'INSCRIPTION ===');
@@ -111,13 +107,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Une erreur est survenue lors de l\'inscription',
-                'error' => $e->getMessage()
-            ], 500)
-                ->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
-                ->header('Accept', 'application/json');
+                'message' => 'Une erreur est survenue lors de l\'inscription: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
