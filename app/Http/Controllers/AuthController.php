@@ -11,16 +11,6 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        // Répondre aux pré-requêtes OPTIONS
-        if ($request->isMethod('OPTIONS')) {
-            return response('', 200)
-                ->header('Access-Control-Allow-Origin', 'https://aeddi-antsiranana.onrender.com')
-                ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept, Origin')
-                ->header('Access-Control-Allow-Credentials', 'true')
-                ->header('Access-Control-Max-Age', '86400');
-        }
-
         // Validation des données d'entrée
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
@@ -36,10 +26,7 @@ class AuthController extends Controller
                 'status' => 'error',
                 'message' => 'Erreur de validation',
                 'errors' => $validator->errors()
-            ], 422)->withHeaders([
-                'Access-Control-Allow-Origin' => 'https://aeddi-antsiranana.onrender.com',
-                'Access-Control-Allow-Credentials' => 'true'
-            ]);
+            ], 422);
         }
 
         try {
@@ -69,11 +56,6 @@ class AuthController extends Controller
                 'photo_url' => $user->photo ? asset('storage/' . $user->photo) : null,
                 'token' => $token,
                 'token_type' => 'Bearer',
-            ])->withHeaders([
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-                'Access-Control-Allow-Credentials' => 'true'
             ]);
 
         } catch (\Exception $e) {
@@ -81,12 +63,7 @@ class AuthController extends Controller
                 'status' => 'error',
                 'message' => 'Erreur lors de la création de l\'utilisateur',
                 'error' => $e->getMessage()
-            ], 500)->withHeaders([
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-                'Access-Control-Allow-Credentials' => 'true'
-            ]);
+            ], 500);
         }
     }
 }
