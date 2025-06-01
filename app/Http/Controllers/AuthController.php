@@ -6,14 +6,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        \Log::info('=== DÉBUT DE L\'INSCRIPTION ===');
-        \Log::info('Données reçues:', $request->all());
-        \Log::info('Headers:', $request->headers->all());
+        Log::info('=== DÉBUT DE L\'INSCRIPTION ===');
+        Log::info('Données reçues:', $request->all());
+        Log::info('Headers:', $request->headers->all());
 
         try {
             // Validation des données d'entrée
@@ -27,8 +28,8 @@ class AuthController extends Controller
 
             // Si la validation échoue, retour des erreurs
             if ($validator->fails()) {
-                \Log::error('=== ERREUR DE VALIDATION ===');
-                \Log::error('Détails:', $validator->errors()->toArray());
+                Log::error('=== ERREUR DE VALIDATION ===');
+                Log::error('Détails:', $validator->errors()->toArray());
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Erreur de validation',
@@ -36,17 +37,17 @@ class AuthController extends Controller
                 ], 422);
             }
 
-            \Log::info('=== VALIDATION RÉUSSIE ===');
+            Log::info('=== VALIDATION RÉUSSIE ===');
 
             // Si une photo est téléchargée, on la stocke
             $photoPath = null;
             if ($request->hasFile('photo')) {
-                \Log::info('Photo détectée, tentative de stockage');
+                Log::info('Photo détectée, tentative de stockage');
                 try {
                     $photoPath = $request->file('photo')->store('photos', 'public');
-                    \Log::info('Photo stockée avec succès:', ['path' => $photoPath]);
+                    Log::info('Photo stockée avec succès:', ['path' => $photoPath]);
                 } catch (\Exception $e) {
-                    \Log::error('Erreur lors du stockage de la photo:', ['error' => $e->getMessage()]);
+                    Log::error('Erreur lors du stockage de la photo:', ['error' => $e->getMessage()]);
                     throw new \Exception('Erreur lors du stockage de la photo: ' . $e->getMessage());
                 }
             }
@@ -60,23 +61,23 @@ class AuthController extends Controller
                 'photo' => $photoPath,
             ];
 
-            \Log::info('=== TENTATIVE DE CRÉATION DE L\'UTILISATEUR ===');
-            \Log::info('Données:', array_except($userData, ['password']));
+            Log::info('=== TENTATIVE DE CRÉATION DE L\'UTILISATEUR ===');
+            Log::info('Données:', array_except($userData, ['password']));
 
             $user = User::create($userData);
-            
+
             if (!$user) {
                 throw new \Exception('Échec de la création de l\'utilisateur dans la base de données');
             }
 
-            \Log::info('=== UTILISATEUR CRÉÉ AVEC SUCCÈS ===', ['user_id' => $user->id]);
+            Log::info('=== UTILISATEUR CRÉÉ AVEC SUCCÈS ===', ['user_id' => $user->id]);
 
             // Création du token
             try {
                 $token = $user->createToken('auth_token')->plainTextToken;
-                \Log::info('=== TOKEN CRÉÉ ===', ['token_length' => strlen($token)]);
+                Log::info('=== TOKEN CRÉÉ ===', ['token_length' => strlen($token)]);
             } catch (\Exception $e) {
-                \Log::error('Erreur lors de la création du token:', ['error' => $e->getMessage()]);
+                Log::error('Erreur lors de la création du token:', ['error' => $e->getMessage()]);
                 throw new \Exception('Erreur lors de la création du token: ' . $e->getMessage());
             }
 
@@ -94,16 +95,16 @@ class AuthController extends Controller
                 ]
             ];
 
-            \Log::info('=== RÉPONSE PRÉPARÉE ===');
-            \Log::info('Structure de la réponse:', array_keys($response));
-            \Log::info('Structure user:', array_keys($response['user']));
+            Log::info('=== RÉPONSE PRÉPARÉE ===');
+            Log::info('Structure de la réponse:', array_keys($response));
+            Log::info('Structure user:', array_keys($response['user']));
 
             return response()->json($response);
 
         } catch (\Exception $e) {
-            \Log::error('=== ERREUR LORS DE L\'INSCRIPTION ===');
-            \Log::error('Message:', ['error' => $e->getMessage()]);
-            \Log::error('Trace:', ['trace' => $e->getTraceAsString()]);
+            Log::error('=== ERREUR LORS DE L\'INSCRIPTION ===');
+            Log::error('Message:', ['error' => $e->getMessage()]);
+            Log::error('Trace:', ['trace' => $e->getTraceAsString()]);
 
             return response()->json([
                 'status' => 'error',
