@@ -11,30 +11,32 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        \Log::info('Début de l\'inscription');
+        \Log::info('=== DÉBUT DE L\'INSCRIPTION ===');
         \Log::info('Données reçues:', $request->all());
-
-        // Validation des données d'entrée
-        $validator = Validator::make($request->all(), [
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'photo' => 'nullable|image|max:2048',
-        ]);
-
-        // Si la validation échoue, retour des erreurs
-        if ($validator->fails()) {
-            \Log::error('Erreur de validation:', ['errors' => $validator->errors()->toArray()]);
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Erreur de validation',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        \Log::info('Headers:', $request->headers->all());
 
         try {
-            \Log::info('Validation réussie, création de l\'utilisateur');
+            // Validation des données d'entrée
+            $validator = Validator::make($request->all(), [
+                'nom' => 'required|string|max:255',
+                'prenom' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6',
+                'photo' => 'nullable|image|max:2048',
+            ]);
+
+            // Si la validation échoue, retour des erreurs
+            if ($validator->fails()) {
+                \Log::error('=== ERREUR DE VALIDATION ===');
+                \Log::error('Détails:', $validator->errors()->toArray());
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Erreur de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            \Log::info('=== VALIDATION RÉUSSIE ===');
 
             // Si une photo est téléchargée, on la stocke
             $photoPath = null;
@@ -45,6 +47,7 @@ class AuthController extends Controller
                     \Log::info('Photo stockée avec succès:', ['path' => $photoPath]);
                 } catch (\Exception $e) {
                     \Log::error('Erreur lors du stockage de la photo:', ['error' => $e->getMessage()]);
+                    throw new \Exception('Erreur lors du stockage de la photo: ' . $e->getMessage());
                 }
             }
 
@@ -57,14 +60,25 @@ class AuthController extends Controller
                 'photo' => $photoPath,
             ];
 
-            \Log::info('Tentative de création de l\'utilisateur avec:', array_except($userData, ['password']));
+            \Log::info('=== TENTATIVE DE CRÉATION DE L\'UTILISATEUR ===');
+            \Log::info('Données:', array_except($userData, ['password']));
 
             $user = User::create($userData);
-            \Log::info('Utilisateur créé avec succès:', ['user_id' => $user->id]);
+            
+            if (!$user) {
+                throw new \Exception('Échec de la création de l\'utilisateur dans la base de données');
+            }
+
+            \Log::info('=== UTILISATEUR CRÉÉ AVEC SUCCÈS ===', ['user_id' => $user->id]);
 
             // Création du token
-            $token = $user->createToken('auth_token')->plainTextToken;
-            \Log::info('Token créé avec succès');
+            try {
+                $token = $user->createToken('auth_token')->plainTextToken;
+                \Log::info('=== TOKEN CRÉÉ ===');
+            } catch (\Exception $e) {
+                \Log::error('Erreur lors de la création du token:', ['error' => $e->getMessage()]);
+                throw new \Exception('Erreur lors de la création du token: ' . $e->getMessage());
+            }
 
             // Préparation de la réponse
             $response = [
@@ -80,20 +94,30 @@ class AuthController extends Controller
                 ]
             ];
 
-            \Log::info('Envoi de la réponse de succès');
-            return response()->json($response);
+            \Log::info('=== RÉPONSE PRÉPARÉE ===');
+            \Log::info('Structure de la réponse:', array_keys($response));
+            \Log::info('Structure user:', array_keys($response['user']));
+
+            return response()->json($response)
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+                ->header('Accept', 'application/json');
 
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de l\'inscription:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            \Log::error('=== ERREUR LORS DE L\'INSCRIPTION ===');
+            \Log::error('Message:', ['error' => $e->getMessage()]);
+            \Log::error('Trace:', ['trace' => $e->getTraceAsString()]);
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Erreur lors de la création de l\'utilisateur',
+                'message' => 'Une erreur est survenue lors de l\'inscription',
                 'error' => $e->getMessage()
-            ], 500);
+            ], 500)
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+                ->header('Accept', 'application/json');
         }
     }
 }
