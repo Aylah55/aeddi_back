@@ -91,7 +91,7 @@ class AuthController extends Controller
                     'nom' => $user->nom,
                     'prenom' => $user->prenom,
                     'email' => $user->email,
-                    'photo_url' => $user->photo ? asset('storage/' . $user->photo) : null,
+                    'photo_url' => $user->photo ? url('storage/' . $user->photo) : null,
                 ]
             ];
 
