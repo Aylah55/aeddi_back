@@ -17,7 +17,7 @@ return [
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,aeddi-antsiranana.onrender.com',
+        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,aeddi-antsiranana.onrender.com,aeddi-backend.onrender.com',
         Sanctum::currentApplicationUrlWithPort()
     ))),
 
@@ -79,6 +79,6 @@ return [
         'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
     ],
 
-    'prefix' => 'sanctum'
+    'prefix' => 'api'
 
 ];
