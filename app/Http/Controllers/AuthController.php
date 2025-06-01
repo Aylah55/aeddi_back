@@ -14,10 +14,11 @@ class AuthController extends Controller
         // Répondre aux pré-requêtes OPTIONS
         if ($request->isMethod('OPTIONS')) {
             return response('', 200)
-                ->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-TOKEN')
-                ->header('Access-Control-Allow-Credentials', 'true');
+                ->header('Access-Control-Allow-Origin', 'https://aeddi-antsiranana.onrender.com')
+                ->header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept, Origin')
+                ->header('Access-Control-Allow-Credentials', 'true')
+                ->header('Access-Control-Max-Age', '86400');
         }
 
         // Validation des données d'entrée
@@ -36,9 +37,7 @@ class AuthController extends Controller
                 'message' => 'Erreur de validation',
                 'errors' => $validator->errors()
             ], 422)->withHeaders([
-                'Access-Control-Allow-Origin' => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+                'Access-Control-Allow-Origin' => 'https://aeddi-antsiranana.onrender.com',
                 'Access-Control-Allow-Credentials' => 'true'
             ]);
         }
