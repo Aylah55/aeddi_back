@@ -3,6 +3,16 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Route Sanctum pour le CSRF token
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
+});
+
 Route::get('/db-test', function() {
     try {
         DB::connection()->getPdo();
