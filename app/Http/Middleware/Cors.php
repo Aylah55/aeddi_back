@@ -14,30 +14,18 @@ class Cors
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        $origin = $request->header('Origin');
-        
-        if (empty($origin)) {
-            $origin = 'http://localhost:3000';
-        }
+        $response = $next($request);
 
-        $headers = [
-            'Access-Control-Allow-Origin' => $origin,
-            'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS, PUT, DELETE',
-            'Access-Control-Allow-Headers' => 'Content-Type, X-Auth-Token, Origin, Authorization, X-Requested-With, X-CSRF-TOKEN',
-            'Access-Control-Allow-Credentials' => 'true',
-            'Access-Control-Max-Age' => '86400'
-        ];
+        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:3000');
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        $response->headers->set('Access-Control-Max-Age', '86400');
 
         if ($request->isMethod('OPTIONS')) {
-            return response()->json('OK', 200, $headers);
-        }
-
-        $response = $next($request);
-        
-        foreach ($headers as $key => $value) {
-            $response->headers->set($key, $value);
+            $response->setStatusCode(200);
         }
 
         return $response;

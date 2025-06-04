@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
-class InscriptionController extends Controller
+class CreatUserController extends Controller
 {
     public function register(Request $request)
     {
