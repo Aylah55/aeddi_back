@@ -14,7 +14,19 @@ class InscriptionController extends Controller
     public function register(Request $request)
     {
         try {
-            Log::info('Début de l\'inscription', ['data' => $request->all()]);
+            Log::info('Début de l\'inscription', [
+                'data' => $request->all(),
+                'sous_role_recu' => $request->input('sous_role'),
+                'role_recu' => $request->input('role'),
+                'sous_role_type' => gettype($request->input('sous_role')),
+                'validation_rules' => [
+                    'required_if' => $request->input('role') === 'Membre de bureau',
+                    'in_array' => in_array($request->input('sous_role'), [
+                        'Tresoriere', 'Vice_president', 'Commissaire au compte',
+                        'Commission logement', 'Commission sport', 'Conseiller'
+                    ])
+                ]
+            ]);
 
             // Validation des données
             $validator = Validator::make($request->all(), [
@@ -24,7 +36,7 @@ class InscriptionController extends Controller
                 'parcours' => 'required|string|in:EP,EII,EG,GESTION',
                 'niveau' => 'required|string|in:L1,L2,L3,M1,M2',
                 'role' => 'required|string|in:President,Membre de bureau,Membre',
-                'sous_role' => 'required_if:role,Membre de bureau|string|in:Tresoriere,Vice_president,Commissaire au compte,Commission logement,Commission sport,Conseillé',
+                'sous_role' => 'nullable|string|required_if:role,Membre de bureau|in:Tresoriere,Vice_president,Commissaire au compte,Commission logement,Commission sport,Conseiller',
                 'promotion' => 'required|string|in:2020,2021,2022,2023,2024,2025',
                 'telephone' => 'required|string|max:20',
                 'email' => 'required|string|email|max:255|unique:users',
@@ -61,7 +73,9 @@ class InscriptionController extends Controller
             $userData['password'] = Hash::make($request->password);
             $userData['photo'] = $photoPath;
 
-            Log::info('Données utilisateur préparées', ['userData' => array_except($userData, ['password'])]);
+            Log::info('Données utilisateur préparées', [
+                'userData' => collect($userData)->except('password')->toArray()
+            ]);
 
             try {
                 $user = User::create($userData);
@@ -70,7 +84,7 @@ class InscriptionController extends Controller
                 Log::error('Erreur lors de la création de l\'utilisateur', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
-                    'userData' => array_except($userData, ['password'])
+                    'userData' => collect($userData)->except('password')->toArray()
                 ]);
                 throw $e;
             }
@@ -98,7 +112,7 @@ class InscriptionController extends Controller
             Log::error('Erreur lors de l\'inscription', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->except('password')
+                'request_data' => collect($request->all())->except('password')->toArray()
             ]);
 
             // En cas d'erreur, supprimer la photo si elle a été uploadée
