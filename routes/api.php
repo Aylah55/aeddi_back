@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\GetAllUserController;
+use App\Http\Controllers\DeleteUserController;
 use App\Http\Controllers\Api\GetActivityController;
 use App\Http\Controllers\Api\CreateActivityController;
 
@@ -25,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [GetUserController::class, 'getUserInfo']);
     Route::put('/user/{id}', [UpdateUserController::class, 'update']);
     Route::get('/users', [GetAllUserController::class, 'index']);
+    Route::delete('/users/{user}', [DeleteUserController::class, 'destroy']);
     
     // Routes pour les activités
     Route::get('/activites', [GetActivityController::class, '__invoke']);
