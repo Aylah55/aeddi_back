@@ -10,8 +10,22 @@ class GetAllUserController extends Controller
     public function index()
     {
         try {
-            $users = User::select('photo', 'nom', 'prenom', 'etablissement', 'role', 'sous_role', 'telephone')
-                        ->get();
+            $users = User::select(
+                'id',
+                'photo',
+                'nom',
+                'prenom',
+                'email',
+                'etablissement',
+                'role',
+                'sous_role',
+                'telephone',
+                'parcours',
+                'niveau',
+                'promotion',
+                'created_at',
+                'updated_at'
+            )->get();
 
             return response()->json([
                 'status' => 'success',

@@ -44,4 +44,11 @@ class User extends Authenticatable
         }
         return parent::setAttribute($key, $value);
     }
+
+    public function cotisations()
+    {
+        return $this->belongsToMany(Cotisation::class)
+            ->withPivot('statut_paiement', 'date_paiement')
+            ->withTimestamps();
+    }
 }
