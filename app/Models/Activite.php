@@ -14,12 +14,12 @@ class Activite extends Model
         'description',
         'date_debut',
         'date_fin',
-        'status',
+        'status'
     ];
 
     protected $casts = [
         'date_debut' => 'datetime',
-        'date_fin' => 'datetime',
+        'date_fin' => 'datetime'
     ];
 
     public static $rules = [
