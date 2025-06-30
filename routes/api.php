@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\UpdateCotisationController;
 use App\Http\Controllers\Api\GetUserCotisationsController;
 use App\Http\Controllers\Api\UpdateCotisationPaiementController;
 use App\Http\Controllers\Api\GetUserCotisationsStatusController;
+use App\Http\Controllers\Api\GetMyCotisationsController;
 
 // Routes publiques
 Route::post('/inscription', [CreatUserController::class, 'register']);
@@ -47,4 +48,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}/cotisations', [GetUserCotisationsController::class, '__invoke']);
     Route::get('/user/{id}/cotisations/status', [GetUserCotisationsStatusController::class, '__invoke']);
     Route::put('/cotisation/{cotisationId}/user/{userId}/paiement', [UpdateCotisationPaiementController::class, '__invoke']);
+    Route::get('/my-cotisations', [GetMyCotisationsController::class, '__invoke']);
 });
