@@ -26,6 +26,8 @@ WORKDIR /var/www/html
 
 # Installe les dépendances Laravel
 RUN composer install --no-dev --optimize-autoloader
+RUN php artisan config:cache
+
 
 # Lancer les migrations (si tu veux)
 # RUN php artisan migrate --force
