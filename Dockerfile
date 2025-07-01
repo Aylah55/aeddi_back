@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 
 # Active mod_rewrite d'Apache
-RUN a2enmod rewrite
+RUN a2enmod rewrite headers
 
 # Copie le code Laravel dans le conteneur
 COPY . /var/www/html
