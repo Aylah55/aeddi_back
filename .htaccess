@@ -21,7 +21,7 @@
 </IfModule>
 
 # Gestion des en-têtes CORS
-Header set Access-Control-Allow-Origin "https://aeddi-antsiranana.onrender.com"
+Header set Access-Control-Allow-Origin "https://aeddi-front.onrender.com"
 Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-XSRF-TOKEN, Accept"
 Header set Access-Control-Allow-Credentials "true"
