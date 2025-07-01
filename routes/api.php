@@ -20,10 +20,12 @@ use App\Http\Controllers\Api\GetUserCotisationsController;
 use App\Http\Controllers\Api\UpdateCotisationPaiementController;
 use App\Http\Controllers\Api\GetUserCotisationsStatusController;
 use App\Http\Controllers\Api\GetMyCotisationsController;
+use App\Http\Controllers\TestController;
 
 // Routes publiques
 Route::post('/inscription', [CreatUserController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/test', [TestController::class, 'test']);
 
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
