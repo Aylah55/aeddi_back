@@ -10,13 +10,40 @@ Route::get('/', function () {
 
 // Route Sanctum pour le CSRF token
 Route::get('/sanctum/csrf-cookie', function () {
-    return response()->json(['message' => 'CSRF cookie set'])
-        ->withHeaders([
-            'Access-Control-Allow-Origin' => request()->header('Origin'),
+    $origin = request()->header('Origin');
+    $allowedOrigins = ['http://localhost:3000', 'https://aeddi-front.onrender.com'];
+    
+    $response = response()->json(['message' => 'CSRF cookie set']);
+    
+    if (in_array($origin, $allowedOrigins)) {
+        $response->withHeaders([
+            'Access-Control-Allow-Origin' => $origin,
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN'
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN, Accept'
         ]);
+    }
+    
+    return $response;
+});
+
+// Route OPTIONS pour les preflight requests
+Route::options('/sanctum/csrf-cookie', function () {
+    $origin = request()->header('Origin');
+    $allowedOrigins = ['http://localhost:3000', 'https://aeddi-front.onrender.com'];
+    
+    $response = response('', 200);
+    
+    if (in_array($origin, $allowedOrigins)) {
+        $response->withHeaders([
+            'Access-Control-Allow-Origin' => $origin,
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN, Accept'
+        ]);
+    }
+    
+    return $response;
 });
 
 Route::get('/db-test', function() {
