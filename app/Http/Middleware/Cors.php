@@ -18,7 +18,14 @@ class Cors
     {
         $response = $next($request);
 
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:3000');
+        // Déterminer l'origine autorisée
+        $origin = $request->header('Origin');
+        $allowedOrigins = ['http://localhost:3000', 'https://aeddi-front.onrender.com'];
+        
+        if (in_array($origin, $allowedOrigins)) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+        }
+        
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
