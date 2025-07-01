@@ -10,7 +10,13 @@ Route::get('/', function () {
 
 // Route Sanctum pour le CSRF token
 Route::get('/sanctum/csrf-cookie', function () {
-    return response()->json(['message' => 'CSRF cookie set']);
+    return response()->json(['message' => 'CSRF cookie set'])
+        ->withHeaders([
+            'Access-Control-Allow-Origin' => request()->header('Origin'),
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN'
+        ]);
 });
 
 Route::get('/db-test', function() {
