@@ -1,44 +1,33 @@
-FROM php:8.1-apache
+FROM php:8.2-apache
 
-ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    APP_ENV=production \
-    APP_DEBUG=false \
-    SANCTUM_STATEFUL_DOMAINS=aeddi-antsiranana.onrender.com \
-    SESSION_DOMAIN=.onrender.com \
-    CORS_ALLOWED_ORIGINS="https://aeddi-antsiranana.onrender.com"
-
+# Installe les dépendances système
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip libpq-dev git \
-    && docker-php-ext-install pdo pdo_pgsql pgsql zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    git zip unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 
-RUN a2enmod rewrite headers
+# Active mod_rewrite d'Apache
+RUN a2enmod rewrite
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Copie le code Laravel dans le conteneur
+COPY . /var/www/html
 
+# Change les permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Copie le fichier virtual host Laravel
+COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Installe Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Passe à /var/www/html comme répertoire de travail
 WORKDIR /var/www/html
 
-COPY composer.json composer.lock ./
-RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-scripts
+# Installe les dépendances Laravel
+RUN composer install --no-dev --optimize-autoloader
 
-COPY . .
+# Lancer les migrations (si tu veux)
+# RUN php artisan migrate --force
 
-RUN mkdir -p storage/app/public storage/framework/sessions storage/framework/views storage/framework/cache storage/logs \
-    && chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
-
-RUN ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
-
-# Copier la config Apache
-COPY laravel.conf /etc/apache2/sites-available/laravel.conf
-
-# Désactiver le site par défaut et activer le notre
-RUN a2dissite 000-default.conf \
-    && a2ensite laravel.conf
-
-WORKDIR /var/www/html/public
-
-# Expose port 80, port par défaut d'Apache
 EXPOSE 80
-
-CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
