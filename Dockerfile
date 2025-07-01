@@ -5,31 +5,33 @@ RUN apt-get update && apt-get install -y \
     git zip unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev \
     && docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 
-# Active mod_rewrite d'Apache
+# Active mod_rewrite et headers pour .htaccess (important pour Sanctum / CORS)
 RUN a2enmod rewrite headers
-
-# Copie le code Laravel dans le conteneur
-COPY . /var/www/html
-
-# Change les permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
-
-# Copie le fichier virtual host Laravel
-COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Installe Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Copie le projet Laravel
+COPY . /var/www/html
+
+# Donne les bonnes permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
 # Passe à /var/www/html comme répertoire de travail
 WORKDIR /var/www/html
 
 # Installe les dépendances Laravel
 RUN composer install --no-dev --optimize-autoloader
-RUN php artisan config:cache
 
+# Génère les caches Laravel (important pour .env et config)
+RUN php artisan config:clear \
+ && php artisan route:clear \
+ && php artisan view:clear \
+ && php artisan config:cache
 
-# Lancer les migrations (si tu veux)
-# RUN php artisan migrate --force
+# Copie la configuration Apache personnalisée
+COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
 
+# Expose le port 80
 EXPOSE 80
