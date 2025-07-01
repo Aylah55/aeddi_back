@@ -1,25 +1,15 @@
 services:
   - type: web
-    name: AEDDI-backend
-    env: docker
+    name: laravel-backend
+    env: php
     plan: free
-    region: frankfurt
-    branch: main
-    dockerfilePath: ./Dockerfile
+    buildCommand: ""
+    startCommand: ./start.sh
     envVars:
       - key: APP_ENV
         value: production
-      - key: APP_DEBUG
-        value: false
-      - key: DB_CONNECTION
-        value: mysql
+      - key: APP_KEY
+        value: (à générer avec `php artisan key:generate --show`)
       - key: DB_HOST
-        value: ton-hôte-mysql.render.com
-      - key: DB_PORT
-        value: 3306
-      - key: DB_DATABASE
-        value: nom_de_ta_db
-      - key: DB_USERNAME
-        value: ton_utilisateur
-      - key: DB_PASSWORD
-        sync: false
+        value: (host fourni par Railway ou PlanetScale, ou Render DB)
+      - key: ...
