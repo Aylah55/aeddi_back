@@ -1,1 +1,13 @@
-*.sqlite*
+# .env de Laravel
+.env
+
+# Dépendances PHP
+/vendor
+
+# Fichiers de logs
+*.log
+
+# Cache Laravel
+/storage/*.key
+/storage/framework/*
+/bootstrap/cache/*
