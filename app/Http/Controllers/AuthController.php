@@ -44,19 +44,39 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        try {
-            $request->user()->currentAccessToken()->delete();
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Déconnexion réussie'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Déconnexion réussie']);
+    }
+
+    /**
+     * Permettre aux utilisateurs Google de créer un mot de passe local
+     */
+    public function setPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé.'], 404);
         }
+
+        // Vérifier que c'est un compte Google (ou sans mot de passe)
+        if ($user->provider === 'google' || !$user->password) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+
+            return response()->json([
+                'message' => 'Mot de passe créé avec succès. Vous pouvez maintenant vous connecter avec email/mot de passe.'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Ce compte a déjà un mot de passe. Utilisez la fonction "mot de passe oublié" si nécessaire.'
+        ], 400);
     }
 
     public function user(Request $request)

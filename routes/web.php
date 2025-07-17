@@ -46,6 +46,10 @@ Route::options('/sanctum/csrf-cookie', function () {
     return $response;
 });
 
+Route::get('/reset-password/{token}', function ($token) {
+    return 'Lien de réinitialisation reçu. Token : ' . $token;
+})->name('password.reset');
+
 Route::get('/db-test', function() {
     try {
         DB::connection()->getPdo();

@@ -32,6 +32,18 @@ class UpdateCotisationPaiementController extends Controller
                 'date_paiement' => $request->statut_paiement === 'Payé' ? now() : null
             ]);
 
+            // Création de la notification personnalisée pour l'utilisateur
+            $admin = $request->user();
+            $adminName = $admin ? ($admin->prenom . ' ' . $admin->nom) : 'Un administrateur';
+            \App\Models\Notification::create([
+                'user_id' => $user->id,
+                'admin_id' => $admin ? $admin->id : null,
+                'title' => $cotisation->nom,
+                'message' => $adminName . ' a changé votre cotisation "' . $cotisation->nom . '" comme ' . strtolower($request->statut_paiement),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
             return response()->json([
                 'message' => 'Statut de paiement mis à jour avec succès',
                 'data' => [

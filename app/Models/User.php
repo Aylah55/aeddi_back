@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\CustomResetPassword;
 
 class User extends Authenticatable
 {
@@ -23,7 +25,9 @@ class User extends Authenticatable
         'niveau',
         'promotion',
         'role',
-        'sous_role'
+        'sous_role',
+        'provider',
+        'provider_id'
     ];
 
     protected $hidden = [
@@ -50,5 +54,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Cotisation::class)
             ->withPivot('statut_paiement', 'date_paiement')
             ->withTimestamps();
+    }
+    public function notifications()
+{
+    return $this->hasMany(Notification::class);
+}
+
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'http://localhost:3000/create-password?token=' . $token . '&email=' . urlencode($this->email);
+        $this->notify(new CustomResetPassword($url));
     }
 }
