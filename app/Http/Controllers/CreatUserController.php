@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Cotisation; // N'oublie pas d'importer ce modèle
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -89,6 +90,15 @@ class CreatUserController extends Controller
                 throw $e;
             }
 
+            // Attacher toutes les cotisations existantes avec statut par défaut
+            $cotisations = Cotisation::all();
+            $attachData = [];
+            foreach ($cotisations as $cotisation) {
+                $attachData[$cotisation->id] = ['statut_paiement' => 'non payé'];
+            }
+            $user->cotisations()->attach($attachData);
+            Log::info('Cotisations attachées à l\'utilisateur', ['count' => count($attachData)]);
+
             // Création du token d'authentification
             try {
                 $token = $user->createToken('auth_token')->plainTextToken;
@@ -127,4 +137,4 @@ class CreatUserController extends Controller
             ], 500);
         }
     }
-} 
+}

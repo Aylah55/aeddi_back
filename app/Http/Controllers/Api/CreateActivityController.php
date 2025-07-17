@@ -31,6 +31,21 @@ class CreateActivityController extends Controller
             
             // Créer l'activité
             $activite = Activite::create($data);
+
+            // Notifier tous les utilisateurs non-admin de l'ajout
+            $users = \App\Models\User::where('role', '!=', 'admin')->get();
+            $admin = $request->user();
+            $adminName = $admin ? ($admin->prenom . ' ' . $admin->nom) : 'Administrateur';
+            foreach ($users as $user) {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'admin_id' => $admin ? $admin->id : null,
+                    'title' => $activite->nom,
+                    'message' => $adminName . ' a ajouté une nouvelle activité : « ' . $activite->nom . ' »',
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
             
             return response()->json([
                 'status' => 'success',

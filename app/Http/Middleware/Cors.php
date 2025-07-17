@@ -30,6 +30,7 @@ class Cors
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-XSRF-TOKEN');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
         $response->headers->set('Access-Control-Max-Age', '86400');
+        $response->headers->set('Content-Security-Policy', "frame-ancestors 'self' http://localhost:3000 https://aeddi-front.onrender.com");
 
         if ($request->isMethod('OPTIONS')) {
             $response->setStatusCode(200);

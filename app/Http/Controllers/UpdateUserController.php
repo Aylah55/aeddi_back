@@ -55,16 +55,29 @@ class UpdateUserController extends Controller
             // Traitement de la photo
             if ($request->hasFile('photo')) {
                 Log::info('Traitement de la nouvelle photo');
-                
-                if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-                    Storage::disk('public')->delete($user->photo);
-                    Log::info('Ancienne photo supprimée');
+            
+                try {
+                    if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                        Storage::disk('public')->delete($user->photo);
+                        Log::info('Ancienne photo supprimée');
+                    }
+                    
+                    $photoPath = $request->file('photo')->store('photos', 'public');
+                    $validatedData['photo'] = $photoPath;
+                    Log::info('Nouvelle photo enregistrée', ['path' => $photoPath]);
+                } catch (\Exception $e) {
+                    Log::error('Erreur lors du traitement de la photo', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Optionnel : retourner une erreur spécifique ou continuer sans photo
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Erreur lors du traitement de la photo : ' . $e->getMessage()
+                    ], 500);
                 }
-                
-                $photoPath = $request->file('photo')->store('photos', 'public');
-                $validatedData['photo'] = $photoPath;
-                Log::info('Nouvelle photo enregistrée', ['path' => $photoPath]);
             }
+            
 
             // Sauvegarder les modifications
             $oldData = $user->toArray();

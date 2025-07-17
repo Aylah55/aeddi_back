@@ -40,6 +40,21 @@ class UpdateActivityController extends Controller
                 'status' => $request->status
             ]);
 
+            // Notifier tous les utilisateurs non-admin de la modification
+            $users = \App\Models\User::where('role', '!=', 'admin')->get();
+            $admin = $request->user();
+            $adminName = $admin ? ($admin->prenom . ' ' . $admin->nom) : 'Administrateur';
+            foreach ($users as $user) {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'admin_id' => $admin ? $admin->id : null,
+                    'title' => $activite->nom,
+                    'message' => $adminName . ' a modifié l\'activité : « ' . $activite->nom . ' »',
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
             return response()->json([
                 'message' => 'Activité mise à jour avec succès',
                 'data' => $activite

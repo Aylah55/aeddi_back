@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cotisation;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -34,10 +35,24 @@ class CreateCotisationController extends Controller
             // Récupérer tous les utilisateurs non-admin
             $users = User::where('role', '!=', 'admin')->get();
 
-            // Attacher la cotisation à tous les utilisateurs
+            // Admin actuel (créateur de la cotisation)
+            $admin = $request->user();
+            $adminName = $admin ? ($admin->prenom . ' ' . $admin->nom) : 'Un administrateur';
+
+            // Attacher la cotisation à tous les utilisateurs et créer notification
             foreach ($users as $user) {
                 $user->cotisations()->attach($cotisation->id, [
                     'statut_paiement' => 'Non payé'
+                ]);
+
+                // Créer une notification pour l'utilisateur
+                Notification::create([
+                    'user_id' => $user->id,
+                    'admin_id' => $admin ? $admin->id : null,
+                    'title' => $cotisation->nom, // <-- Ici on utilise le nom de la cotisation comme titre
+                    'message' => "$adminName a ajouté une nouvelle cotisation : « {$cotisation->nom} »",
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
             }
 
@@ -53,4 +68,4 @@ class CreateCotisationController extends Controller
             ], 500);
         }
     }
-} 
+}
