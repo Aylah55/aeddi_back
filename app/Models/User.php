@@ -18,6 +18,7 @@ class User extends Authenticatable
         'prenom',
         'email',
         'password',
+        'password_set',
         'telephone',
         'photo',
         'etablissement',
@@ -55,10 +56,42 @@ class User extends Authenticatable
             ->withPivot('statut_paiement', 'date_paiement')
             ->withTimestamps();
     }
+
     public function notifications()
-{
-    return $this->hasMany(Notification::class);
-}
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function notificationsAsAdmin()
+    {
+        return $this->hasMany(Notification::class, 'admin_id');
+    }
+
+    // Méthode pour supprimer l'utilisateur et toutes ses données associées
+    public static function boot()
+    {
+        parent::boot();
+
+        // Avant de supprimer un utilisateur
+        static::deleting(function ($user) {
+            // Supprimer toutes les notifications de l'utilisateur
+            $user->notifications()->delete();
+            
+            // Supprimer tous les messages de l'utilisateur
+            $user->messages()->delete();
+            
+            // Supprimer les notifications créées par l'utilisateur (admin)
+            $user->notificationsAsAdmin()->delete();
+            
+            // Détacher l'utilisateur de toutes ses cotisations
+            $user->cotisations()->detach();
+        });
+    }
 
     public function sendPasswordResetNotification($token)
     {

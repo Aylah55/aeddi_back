@@ -57,16 +57,16 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|confirmed|min:8',
         ]);
-
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'Utilisateur non trouvé.'], 404);
         }
 
-        // Vérifier que c'est un compte Google (ou sans mot de passe)
-        if ($user->provider === 'google' || !$user->password) {
+        // Vérifier que c'est un compte Google (ou sans mot de passe défini)
+        if ($user->provider === 'google' || !$user->password_set) {
             $user->password = bcrypt($request->password);
+            $user->password_set = true; // Marquer que le mot de passe est défini
             $user->save();
 
             return response()->json([
@@ -75,7 +75,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Ce compte a déjà un mot de passe. Utilisez la fonction "mot de passe oublié" si nécessaire.'
+            'message' => 'Ce compte a déjà un mot de passe défini. Utilisez la fonction "mot de passe oublié" si nécessaire.'
         ], 400);
     }
 
