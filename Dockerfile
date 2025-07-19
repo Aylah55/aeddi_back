@@ -14,23 +14,31 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copie le projet Laravel
 COPY . /var/www/html
 
-# Donne les bonnes permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
 # Passe à /var/www/html comme répertoire de travail
 WORKDIR /var/www/html
+
+# Crée les dossiers nécessaires et définit les permissions
+RUN mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/logs \
+    && chown -R www-data:www-data /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Installe les dépendances Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Génère les caches Laravel (important pour .env et config)
-RUN php artisan config:clear \
- && php artisan route:clear \
- && php artisan view:clear \
- && php artisan config:cache
-
 # Copie la configuration Apache personnalisée
 COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
 
+# Script de démarrage
+COPY ./start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Expose le port 80
 EXPOSE 80
+
+# Commande de démarrage
+CMD ["/start.sh"]
