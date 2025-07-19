@@ -5,100 +5,81 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class GoogleController extends Controller
+class FacebookController extends Controller
 {
-    public function redirectToGoogle()
+    public function redirectToFacebook()
     {
-        $redirectUri = env('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback');
+        $redirectUri = env('FACEBOOK_REDIRECT_URI', 'http://localhost:8000/api/auth/facebook/callback');
         
-        // Configuration pour désactiver la vérification SSL en développement
-        $config = [
-            'curl' => [
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
-            ]
-        ];
-        
-        return \Laravel\Socialite\Facades\Socialite::driver('google')
+        return \Laravel\Socialite\Facades\Socialite::driver('facebook')
             ->stateless()
             ->redirectUrl($redirectUri)
-            ->setHttpClient(new \GuzzleHttp\Client($config))
             ->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function handleFacebookCallback()
     {
         try {
-            $redirectUri = env('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback');
+            $redirectUri = env('FACEBOOK_REDIRECT_URI', 'http://localhost:8000/api/auth/facebook/callback');
             
-            // Configuration pour désactiver la vérification SSL en développement
-            $config = [
-                'curl' => [
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
-                ]
-            ];
-            
-            $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')
+            $facebookUser = \Laravel\Socialite\Facades\Socialite::driver('facebook')
                 ->stateless()
                 ->redirectUrl($redirectUri)
-                ->setHttpClient(new \GuzzleHttp\Client($config))
                 ->user();
                 
-            \Log::info('Google OAuth - Utilisateur Google récupéré', [
-                'email' => $googleUser->getEmail(),
-                'name' => $googleUser->getName(),
-                'id' => $googleUser->getId()
+            \Log::info('Facebook OAuth - Utilisateur Facebook récupéré', [
+                'email' => $facebookUser->getEmail(),
+                'name' => $facebookUser->getName(),
+                'id' => $facebookUser->getId()
             ]);
                 
             // Vérifier si l'utilisateur existe déjà
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $user = User::where('email', $facebookUser->getEmail())->first();
             $isNewUser = false;
 
             if (!$user) {
                 // Vérifier si l'email correspond à un admin connu
-                $isAdmin = in_array($googleUser->getEmail(), [
+                $isAdmin = in_array($facebookUser->getEmail(), [
                     'admin@gmail.com', // Email admin existant en base
                 ]);
 
                 // Créer un nouvel utilisateur
                 $user = User::create([
-                    'nom' => $googleUser->getName() ?? 'Utilisateur',
-                    'prenom' => $googleUser->getName() ?? 'Utilisateur',
-                    'email' => $googleUser->getEmail(),
-                    'photo' => $googleUser->getAvatar(),
+                    'nom' => $facebookUser->getName() ?? 'Utilisateur',
+                    'prenom' => $facebookUser->getName() ?? 'Utilisateur',
+                    'email' => $facebookUser->getEmail(),
+                    'photo' => $facebookUser->getAvatar(),
                     'password' => bcrypt(str()->random(24)), // Mot de passe temporaire
-                    'provider' => 'google', // Ajouter le provider
-                    'provider_id' => $googleUser->getId(), // Ajouter l'ID Google
+                    'provider' => 'facebook', // Ajouter le provider
+                    'provider_id' => $facebookUser->getId(), // Ajouter l'ID Facebook
                     'role' => $isAdmin ? 'admin' : 'user', // rôle selon l'email
                 ]);
                 $isNewUser = true;
                 
-                \Log::info('Google OAuth - Nouvel utilisateur créé', [
+                \Log::info('Facebook OAuth - Nouvel utilisateur créé', [
                     'user_id' => $user->id,
                     'email' => $user->email
                 ]);
             } else {
-                // Si l'utilisateur existe déjà, mettre à jour ses informations Google
+                // Si l'utilisateur existe déjà, mettre à jour ses informations Facebook
                 $user->update([
-                    'provider' => 'google',
-                    'provider_id' => $googleUser->getId(),
-                    'photo' => $googleUser->getAvatar(),
+                    'provider' => 'facebook',
+                    'provider_id' => $facebookUser->getId(),
+                    'photo' => $facebookUser->getAvatar(),
                 ]);
                 
-                \Log::info('Google OAuth - Utilisateur existant mis à jour', [
+                \Log::info('Facebook OAuth - Utilisateur existant mis à jour', [
                     'user_id' => $user->id,
                     'email' => $user->email
                 ]);
                 
-                // Vérifier si c'est un utilisateur Google qui n'a pas encore défini de mot de passe
-                if ($user->provider === 'google' && !$user->password_set) {
+                // Vérifier si c'est un utilisateur Facebook qui n'a pas encore défini de mot de passe
+                if ($user->provider === 'facebook' && !$user->password_set) {
                     $isNewUser = true;
                 }
             }
@@ -106,7 +87,7 @@ class GoogleController extends Controller
             // Générer un token Laravel Sanctum
             $token = $user->createToken('auth_token')->plainTextToken;
             
-            \Log::info('Google OAuth - Token généré', [
+            \Log::info('Facebook OAuth - Token généré', [
                 'user_id' => $user->id,
                 'token_length' => strlen($token)
             ]);
@@ -126,7 +107,7 @@ class GoogleController extends Controller
                 $userDataEncoded = base64_encode(json_encode($userData));
                 $redirectUrl = "$frontendUrl/create-password?token=$token&user_id=$user->id&user_data=$userDataEncoded&new_user=true";
                 
-                \Log::info('Google OAuth - Redirection vers création de mot de passe', [
+                \Log::info('Facebook OAuth - Redirection vers création de mot de passe', [
                     'url' => $redirectUrl,
                     'user_id' => $user->id,
                     'email' => $user->email
@@ -139,15 +120,15 @@ class GoogleController extends Controller
                     'email' => $user->email,
                     'nom' => $user->nom ?? 'Utilisateur',
                     'prenom' => $user->prenom ?? 'Utilisateur',
-                    'provider' => $user->provider ?? 'google'
+                    'provider' => $user->provider ?? 'facebook'
                 ];
                 
                 \Cache::put('temp_user_data_' . $user->id, $userData, 300); // 5 minutes
                 
                 // Rediriger vers le dashboard
-                $redirectUrl = "$frontendUrl/google-callback?token=$token&user_id=$user->id";
+                $redirectUrl = "$frontendUrl/facebook-callback?token=$token&user_id=$user->id";
                 
-                \Log::info('Google OAuth - Redirection vers dashboard avec données en cache', [
+                \Log::info('Facebook OAuth - Redirection vers dashboard avec données en cache', [
                     'user_id' => $user->id,
                     'email' => $user->email
                 ]);
@@ -156,43 +137,44 @@ class GoogleController extends Controller
             }
 
         } catch (\Exception $e) {
-            \Log::error('Erreur Google OAuth: ' . $e->getMessage());
+            \Log::error('Erreur Facebook OAuth: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
-            return redirect()->away("$frontendUrl/login?error=google_auth_failed");
+            return redirect()->away("$frontendUrl/login?error=facebook_auth_failed");
         }
     }
 
-    public function handleGoogleSPA(Request $request)
+    public function handleFacebookSPA(Request $request)
     {
-        $credential = $request->input('credential');
-        if (!$credential) {
-            return response()->json(['error' => 'Missing credential'], 400);
+        $accessToken = $request->input('access_token');
+        if (!$accessToken) {
+            return response()->json(['error' => 'Missing access token'], 400);
         }
 
-        // Vérifier le token Google côté serveur
-        $googleResponse = Http::get('https://oauth2.googleapis.com/tokeninfo', [
-            'id_token' => $credential
+        // Vérifier le token Facebook côté serveur
+        $facebookResponse = Http::get('https://graph.facebook.com/me', [
+            'fields' => 'id,name,email,picture',
+            'access_token' => $accessToken
         ]);
 
-        if (!$googleResponse->ok()) {
-            return response()->json(['error' => 'Invalid Google token'], 401);
+        if (!$facebookResponse->ok()) {
+            return response()->json(['error' => 'Invalid Facebook token'], 401);
         }
 
-        $googleUser = $googleResponse->json();
+        $facebookUser = $facebookResponse->json();
 
-        // $googleUser contient : email, name, picture, sub (id Google), etc.
-        $user = User::where('email', $googleUser['email'])->first();
+        // $facebookUser contient : id, name, email, picture, etc.
+        $user = User::where('email', $facebookUser['email'])->first();
 
         if (!$user) {
             $user = User::create([
-                'nom' => $googleUser['name'] ?? 'Utilisateur',
-                'prenom' => $googleUser['name'] ?? 'Utilisateur',
-                'email' => $googleUser['email'],
-                'photo' => $googleUser['picture'] ?? null,
+                'nom' => $facebookUser['name'] ?? 'Utilisateur',
+                'prenom' => $facebookUser['name'] ?? 'Utilisateur',
+                'email' => $facebookUser['email'],
+                'photo' => $facebookUser['picture']['data']['url'] ?? null,
                 'password' => Hash::make(Str::random(24)),
-                'provider' => 'google',
-                'provider_id' => $googleUser['sub'],
+                'provider' => 'facebook',
+                'provider_id' => $facebookUser['id'],
                 'role' => 'user',
             ]);
         }
@@ -318,4 +300,4 @@ class GoogleController extends Controller
             ], 500);
         }
     }
-}
+} 

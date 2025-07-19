@@ -1,13 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CreatUserController;
 use App\Http\Controllers\GetUserController;
 use App\Http\Controllers\UpdateUserController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
-use App\Http\Controllers\InscriptionController;
-use App\Http\Controllers\LoginController;
 use App\Http\Controllers\GetAllUserController;
 use App\Http\Controllers\DeleteUserController;
 use App\Http\Controllers\Api\GetActivityController;
@@ -25,19 +22,27 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\MessageController;
 use App\Models\Message;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\FacebookController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use Illuminate\Support\Facades\Password;
 
 // Routes publiques
-Route::post('/inscription', [CreatUserController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/test-email-exists', [ForgotPasswordController::class, 'testEmailExists']);
 Route::get('/test', [TestController::class, 'test']);
+Route::get('/test-cache', [GoogleController::class, 'testCache']);
+Route::get('/check-user/{id}', [GoogleController::class, 'checkUser']);
+Route::get('/temp-user-data/{id}', [GoogleController::class, 'getTempUserData']);
 // Routes Google OAuth
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']); // <-- Ajouté pour le flux OAuth classique
 Route::post('/auth/google/callback', [GoogleController::class, 'handleGoogleSPA']);
+// Routes Facebook OAuth
+Route::get('/auth/facebook/redirect', [FacebookController::class, 'redirectToFacebook']);
+Route::get('/auth/facebook/callback', [FacebookController::class, 'handleFacebookCallback']);
+Route::post('/auth/facebook/callback', [FacebookController::class, 'handleFacebookSPA']);
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -48,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/{id}', [UpdateUserController::class, 'update']);
     Route::get('/users', [GetAllUserController::class, 'index']);
     Route::delete('/users/{id}', DeleteUserController::class);
+    Route::get('/test-auth', [GoogleController::class, 'testAuth']);
     
     // Activités
     Route::get('/activites', [GetActivityController::class, '__invoke']);

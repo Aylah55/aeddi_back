@@ -12,25 +12,46 @@ class GetUserController extends Controller
     public function getUserInfo($id)
     {
         try {
-            Log::info('Récupération des informations utilisateur', ['user_id' => $id]);
+            Log::info('Récupération des informations utilisateur', [
+                'user_id' => $id,
+                'request_user' => auth()->user() ? auth()->user()->id : 'non_authentifié',
+                'headers' => request()->headers->all()
+            ]);
             
             $user = User::findOrFail($id);
+            
+            Log::info('Utilisateur trouvé', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'nom' => $user->nom
+            ]);
             
             return response()->json([
                 'status' => 'success',
                 'user' => $user
             ]);
             
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la récupération des informations utilisateur', [
-                'error' => $e->getMessage(),
-                'user_id' => $id
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Utilisateur non trouvé', [
+                'user_id' => $id,
+                'error' => $e->getMessage()
             ]);
             
             return response()->json([
                 'status' => 'error',
                 'message' => 'Utilisateur non trouvé'
             ], 404);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la récupération des informations utilisateur', [
+                'error' => $e->getMessage(),
+                'user_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur lors de la récupération des informations utilisateur'
+            ], 500);
         }
     }
 

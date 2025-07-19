@@ -3,7 +3,7 @@ FROM php:8.2-apache
 # Installe les dépendances système
 RUN apt-get update && apt-get install -y \
     git zip unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl curl
 
 # Active mod_rewrite et headers pour .htaccess (important pour Sanctum / CORS)
 RUN a2enmod rewrite headers
