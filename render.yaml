@@ -3,13 +3,38 @@ services:
     name: laravel-backend
     env: php
     plan: free
-    buildCommand: ""
+    buildCommand: composer install --no-dev --optimize-autoloader
     startCommand: ./start.sh
     envVars:
       - key: APP_ENV
         value: production
+      - key: APP_DEBUG
+        value: false
       - key: APP_KEY
-        value: (à générer avec `php artisan key:generate --show`)
+        value: base64:lRfSzEBXmA2GXhNb0YjZVhogf5AEZa7DVgE9Vf4d+ko=
+      - key: APP_URL
+        value: https://aeddi-back.onrender.com
+      - key: DB_CONNECTION
+        value: mysql
       - key: DB_HOST
-        value: (host fourni par Railway ou PlanetScale, ou Render DB)
-      - key: ...
+        value: shortline.proxy.rlwy.net
+      - key: DB_PORT
+        value: 53137
+      - key: DB_DATABASE
+        value: railway
+      - key: DB_USERNAME
+        value: root
+      - key: DB_PASSWORD
+        value: ZIgEfqPrlGTbppurvgOuSncpXlllLBaS
+      - key: LOG_CHANNEL
+        value: stack
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SANCTUM_STATEFUL_DOMAINS
+        value: localhost:3000,aeddi-front.onrender.com
+      - key: SESSION_DOMAIN
+        value: aeddi-front.onrender.com
