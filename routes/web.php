@@ -4,10 +4,70 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
 Route::get('/', function () {
-    return response()->json([
-        'message' => 'AEDDI API is running!'
-    ]);
+    return view('welcome');
+});
+
+// Route de diagnostic pour identifier les problèmes
+Route::get('/diagnostic', function () {
+    $diagnostic = [];
+    
+    // Test de connexion à la base de données
+    try {
+        \DB::connection()->getPdo();
+        $diagnostic['database'] = 'OK - Connexion réussie';
+    } catch (\Exception $e) {
+        $diagnostic['database'] = 'ERREUR - ' . $e->getMessage();
+    }
+    
+    // Test des permissions sur storage
+    $storageWritable = is_writable(storage_path());
+    $logsWritable = is_writable(storage_path('logs'));
+    $diagnostic['storage_permissions'] = [
+        'storage' => $storageWritable ? 'OK' : 'ERREUR',
+        'logs' => $logsWritable ? 'OK' : 'ERREUR'
+    ];
+    
+    // Test des variables d'environnement
+    $diagnostic['env_vars'] = [
+        'APP_ENV' => env('APP_ENV'),
+        'APP_DEBUG' => env('APP_DEBUG'),
+        'APP_KEY' => env('APP_KEY') ? 'Définie' : 'Manquante',
+        'DB_HOST' => env('DB_HOST'),
+        'DB_DATABASE' => env('DB_DATABASE'),
+        'DB_USERNAME' => env('DB_USERNAME'),
+        'DB_PASSWORD' => env('DB_PASSWORD') ? 'Définie' : 'Manquante'
+    ];
+    
+    // Test des migrations
+    try {
+        $pendingMigrations = \Artisan::call('migrate:status');
+        $diagnostic['migrations'] = 'OK - Vérifié';
+    } catch (\Exception $e) {
+        $diagnostic['migrations'] = 'ERREUR - ' . $e->getMessage();
+    }
+    
+    // Test des caches
+    try {
+        \Artisan::call('config:clear');
+        \Artisan::call('cache:clear');
+        $diagnostic['caches'] = 'OK - Vidés';
+    } catch (\Exception $e) {
+        $diagnostic['caches'] = 'ERREUR - ' . $e->getMessage();
+    }
+    
+    return response()->json($diagnostic);
 });
 
 // Route Sanctum pour le CSRF token

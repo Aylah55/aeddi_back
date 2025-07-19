@@ -27,6 +27,16 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use Illuminate\Support\Facades\Password;
 
 // Routes publiques
+Route::get('/health', function() {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'API Laravel fonctionne',
+        'timestamp' => now(),
+        'environment' => env('APP_ENV'),
+        'debug' => env('APP_DEBUG')
+    ]);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
