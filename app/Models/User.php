@@ -95,7 +95,8 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        $url = 'http://localhost:3000/create-password?token=' . $token . '&email=' . urlencode($this->email);
+        $frontendUrl = env('FRONTEND_URL', 'https://aeddi-front.onrender.com');
+        $url = $frontendUrl . '/create-password?token=' . $token . '&email=' . urlencode($this->email);
         $this->notify(new CustomResetPassword($url));
     }
 }
