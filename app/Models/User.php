@@ -96,7 +96,24 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $frontendUrl = env('FRONTEND_URL', 'https://aeddi-front.onrender.com');
-        $url = $frontendUrl . '/create-password?token=' . $token . '&email=' . urlencode($this->email);
+        
+        // Créer les données utilisateur pour le frontend
+        $userData = [
+            'id' => $this->id,
+            'email' => $this->email,
+            'nom' => $this->nom ?? 'Utilisateur',
+            'prenom' => $this->prenom ?? 'Utilisateur',
+            'provider' => $this->provider ?? 'email'
+        ];
+        
+        $userDataEncoded = base64_encode(json_encode($userData));
+        
+        $url = $frontendUrl . '/create-password?token=' . $token . 
+               '&email=' . urlencode($this->email) . 
+               '&user_id=' . $this->id . 
+               '&user_data=' . $userDataEncoded . 
+               '&new_user=false';
+               
         $this->notify(new CustomResetPassword($url));
     }
 }
