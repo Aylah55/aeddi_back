@@ -116,4 +116,20 @@ class User extends Authenticatable
                
         $this->notify(new CustomResetPassword($url));
     }
+
+    // Accesseur pour l'URL de la photo
+    public function getPhotoUrlAttribute()
+    {
+        if (!$this->photo) {
+            return 'https://i.pravatar.cc/100?img=' . rand(1, 70);
+        }
+
+        // Si c'est une URL externe (Google, Facebook)
+        if (filter_var($this->photo, FILTER_VALIDATE_URL)) {
+            return $this->photo;
+        }
+
+        // Si c'est un fichier local stocké
+        return Storage::disk('public')->url($this->photo);
+    }
 }
