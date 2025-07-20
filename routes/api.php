@@ -48,6 +48,26 @@ Route::get('/test-google-config', function() {
     ]);
 });
 
+Route::get('/test-google-callback', function() {
+    try {
+        // Test simple pour voir si le contrôleur peut être instancié
+        $controller = new \App\Http\Controllers\Auth\GoogleController();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'GoogleController peut être instancié',
+            'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
+            'client_id' => env('GOOGLE_CLIENT_ID') ? 'Définie' : 'Manquante'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
