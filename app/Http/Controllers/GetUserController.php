@@ -28,23 +28,7 @@ class GetUserController extends Controller
             
             return response()->json([
                 'status' => 'success',
-                'user' => [
-                    'id' => $user->id,
-                    'nom' => $user->nom,
-                    'prenom' => $user->prenom,
-                    'email' => $user->email,
-                    'telephone' => $user->telephone,
-                    'photo' => $user->photo_url,
-                    'etablissement' => $user->etablissement,
-                    'parcours' => $user->parcours,
-                    'niveau' => $user->niveau,
-                    'promotion' => $user->promotion,
-                    'role' => $user->role,
-                    'sous_role' => $user->sous_role,
-                    'provider' => $user->provider,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at
-                ]
+                'user' => $user
             ]);
             
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -112,23 +96,7 @@ class GetUserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Informations mises à jour avec succès',
-                'user' => [
-                    'id' => $user->id,
-                    'nom' => $user->nom,
-                    'prenom' => $user->prenom,
-                    'email' => $user->email,
-                    'telephone' => $user->telephone,
-                    'photo' => $user->photo_url,
-                    'etablissement' => $user->etablissement,
-                    'parcours' => $user->parcours,
-                    'niveau' => $user->niveau,
-                    'promotion' => $user->promotion,
-                    'role' => $user->role,
-                    'sous_role' => $user->sous_role,
-                    'provider' => $user->provider,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at
-                ]
+                'user' => $user
             ]);
 
         } catch (\Exception $e) {
