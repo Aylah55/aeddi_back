@@ -137,10 +137,8 @@ class GoogleController extends Controller
                     'nom' => $user->nom ?? 'Utilisateur',
                     'prenom' => $user->prenom ?? 'Utilisateur'
                 ];
-                
                 $userDataEncoded = base64_encode(json_encode($userData));
                 $redirectUrl = "$frontendUrl/create-password?token=$token&user_id=$user->id&user_data=$userDataEncoded&new_user=true";
-                
                 \Log::info('Google OAuth - Redirection vers création de mot de passe', [
                     'url' => $redirectUrl,
                     'user_id' => $user->id,
@@ -148,30 +146,25 @@ class GoogleController extends Controller
                     'user_data_encoded' => $userDataEncoded
                 ]);
                 return redirect()->away($redirectUrl);
-            } else {
-                // Pour les utilisateurs existants, utiliser le cache
-                $userData = [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'nom' => $user->nom ?? 'Utilisateur',
-                    'prenom' => $user->prenom ?? 'Utilisateur',
-                    'provider' => $user->provider ?? 'google'
-                ];
-                
-                \Cache::put('temp_user_data_' . $user->id, $userData, 300); // 5 minutes
-                \Log::info('User data cached:', ['cache_key' => 'temp_user_data_' . $user->id, 'data' => $userData]);
-                
-                // Rediriger vers le dashboard
-                $redirectUrl = "$frontendUrl/google-callback?token=$token&user_id=$user->id";
-                
-                \Log::info('Google OAuth - Redirection vers dashboard avec données en cache', [
-                    'url' => $redirectUrl,
-                    'user_id' => $user->id,
-                    'email' => $user->email
-                ]);
-                
-                return redirect()->away($redirectUrl);
             }
+
+            // Pour les utilisateurs existants, utiliser le cache
+            $userData = [
+                'id' => $user->id,
+                'email' => $user->email,
+                'nom' => $user->nom ?? 'Utilisateur',
+                'prenom' => $user->prenom ?? 'Utilisateur',
+                'provider' => $user->provider ?? 'google'
+            ];
+            \Cache::put('temp_user_data_' . $user->id, $userData, 300); // 5 minutes
+            \Log::info('User data cached:', ['cache_key' => 'temp_user_data_' . $user->id, 'data' => $userData]);
+            $redirectUrl = "$frontendUrl/google-callback?token=$token&user_id=$user->id";
+            \Log::info('Google OAuth - Redirection vers dashboard avec données en cache', [
+                'url' => $redirectUrl,
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+            return redirect()->away($redirectUrl);
 
         } catch (\Exception $e) {
             \Log::error('Erreur Google OAuth: ' . $e->getMessage());
