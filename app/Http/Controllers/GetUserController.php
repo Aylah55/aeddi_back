@@ -100,7 +100,7 @@ class GetUserController extends Controller
             // Ajouter l'URL de la photo à la réponse
             $userData = $user->toArray();
             $userData['photo_url'] = $user->photo_url;
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Informations mises à jour avec succès',
