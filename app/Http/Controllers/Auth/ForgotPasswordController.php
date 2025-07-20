@@ -46,23 +46,36 @@ class ForgotPasswordController extends Controller
         // L'utilisateur existe et peut réinitialiser son mot de passe
         \Log::info('Envoi de l\'email de réinitialisation', ['user_id' => $user->id]);
         
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
 
-        if ($status === Password::RESET_LINK_SENT) {
-            \Log::info('Email de réinitialisation envoyé avec succès', ['user_id' => $user->id]);
-            return response()->json([
-                'message' => 'Un email de réinitialisation a été envoyé à votre adresse email.'
-            ]);
-        } else {
-            \Log::error('Erreur lors de l\'envoi de l\'email de réinitialisation', [
+            if ($status === Password::RESET_LINK_SENT) {
+                \Log::info('Email de réinitialisation envoyé avec succès', ['user_id' => $user->id]);
+                return response()->json([
+                    'message' => 'Un email de réinitialisation a été envoyé à votre adresse email.'
+                ]);
+            } else {
+                \Log::error('Erreur lors de l\'envoi de l\'email de réinitialisation', [
+                    'user_id' => $user->id,
+                    'status' => $status
+                ]);
+                return response()->json([
+                    'message' => 'Impossible d\'envoyer l\'email de réinitialisation. Veuillez réessayer.'
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Exception lors de l\'envoi de l\'email de réinitialisation', [
                 'user_id' => $user->id,
-                'status' => $status
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
-                'message' => 'Impossible d\'envoyer l\'email de réinitialisation. Veuillez réessayer.'
-            ], 400);
+                'message' => 'Erreur lors de l\'envoi de l\'email: ' . $e->getMessage()
+            ], 500);
         }
     }
 

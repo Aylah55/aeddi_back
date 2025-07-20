@@ -120,6 +120,38 @@ Route::get('/test-socialite-config', function() {
     }
 });
 
+Route::get('/test-mail-config', function() {
+    try {
+        // Test de la configuration email
+        $mailConfig = config('mail');
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Configuration email récupérée',
+            'default_mailer' => $mailConfig['default'],
+            'from_address' => $mailConfig['from']['address'],
+            'from_name' => $mailConfig['from']['name'],
+            'env_vars' => [
+                'MAIL_MAILER' => env('MAIL_MAILER'),
+                'MAIL_HOST' => env('MAIL_HOST'),
+                'MAIL_PORT' => env('MAIL_PORT'),
+                'MAIL_USERNAME' => env('MAIL_USERNAME') ? 'Définie' : 'Manquante',
+                'MAIL_PASSWORD' => env('MAIL_PASSWORD') ? 'Définie' : 'Manquante',
+                'MAIL_ENCRYPTION' => env('MAIL_ENCRYPTION'),
+                'MAIL_FROM_ADDRESS' => env('MAIL_FROM_ADDRESS'),
+                'MAIL_FROM_NAME' => env('MAIL_FROM_NAME')
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
