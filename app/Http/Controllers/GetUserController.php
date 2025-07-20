@@ -26,9 +26,13 @@ class GetUserController extends Controller
                 'nom' => $user->nom
             ]);
             
+            // Ajouter l'URL de la photo à la réponse
+            $userData = $user->toArray();
+            $userData['photo_url'] = $user->photo_url;
+            
             return response()->json([
                 'status' => 'success',
-                'user' => $user
+                'user' => $userData
             ]);
             
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -93,10 +97,14 @@ class GetUserController extends Controller
 
             $user->update($validatedData);
 
+            // Ajouter l'URL de la photo à la réponse
+            $userData = $user->toArray();
+            $userData['photo_url'] = $user->photo_url;
+            
             return response()->json([
                 'status' => 'success',
                 'message' => 'Informations mises à jour avec succès',
-                'user' => $user
+                'user' => $userData
             ]);
 
         } catch (\Exception $e) {

@@ -105,8 +105,12 @@ class UpdateUserController extends Controller
             // Recharger l'utilisateur depuis la base de données
             $user = $user->fresh();
             
+            // Ajouter l'URL de la photo à la réponse
+            $userData = $user->toArray();
+            $userData['photo_url'] = $user->photo_url;
+            
             Log::info('État final de l\'utilisateur', [
-                'final_data' => $user->toArray()
+                'final_data' => $userData
             ]);
 
             DB::commit();
@@ -114,7 +118,7 @@ class UpdateUserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Informations mises à jour avec succès',
-                'user' => $user,
+                'user' => $userData,
                 'changes' => $changes
             ]);
 
