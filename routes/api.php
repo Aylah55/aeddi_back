@@ -37,6 +37,17 @@ Route::get('/health', function() {
     ]);
 });
 
+Route::get('/test-google-config', function() {
+    return response()->json([
+        'google_client_id' => env('GOOGLE_CLIENT_ID') ? 'Définie' : 'Manquante',
+        'google_client_secret' => env('GOOGLE_CLIENT_SECRET') ? 'Définie' : 'Manquante',
+        'google_redirect_uri' => env('GOOGLE_REDIRECT_URI') ? 'Définie' : 'Manquante',
+        'frontend_url' => env('FRONTEND_URL') ? 'Définie' : 'Manquante',
+        'app_url' => env('APP_URL'),
+        'sanctum_domains' => env('SANCTUM_STATEFUL_DOMAINS')
+    ]);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
