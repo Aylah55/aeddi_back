@@ -11,6 +11,12 @@ class ForgotPasswordController extends Controller
 {
     public function sendResetLinkEmail(Request $request)
     {
+        \Log::info('=== ForgotPassword Request Started ===');
+        \Log::info('Request URL:', ['url' => request()->fullUrl()]);
+        \Log::info('Request Method:', ['method' => request()->method()]);
+        \Log::info('Request Headers:', ['headers' => request()->headers->all()]);
+        \Log::info('Request Body:', ['body' => $request->all()]);
+        
         $request->validate(['email' => 'required|email']);
 
         $email = $request->email;
@@ -47,9 +53,13 @@ class ForgotPasswordController extends Controller
         \Log::info('Envoi de l\'email de réinitialisation', ['user_id' => $user->id]);
         
         try {
+            \Log::info('Attempting to send reset link...', ['user_id' => $user->id]);
+            
             $status = Password::sendResetLink(
                 $request->only('email')
             );
+
+            \Log::info('Password::sendResetLink result:', ['status' => $status]);
 
             if ($status === Password::RESET_LINK_SENT) {
                 \Log::info('Email de réinitialisation envoyé avec succès', ['user_id' => $user->id]);

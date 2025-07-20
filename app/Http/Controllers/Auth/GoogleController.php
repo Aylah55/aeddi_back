@@ -35,7 +35,13 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            \Log::info('=== Google OAuth Callback Started ===');
+            \Log::info('Request URL:', ['url' => request()->fullUrl()]);
+            \Log::info('Request Method:', ['method' => request()->method()]);
+            \Log::info('Request Headers:', ['headers' => request()->headers->all()]);
+            
             $redirectUri = env('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback');
+            \Log::info('Redirect URI:', ['redirect_uri' => $redirectUri]);
             
             // Configuration pour désactiver la vérification SSL en développement
             $config = [
@@ -45,6 +51,7 @@ class GoogleController extends Controller
                 ]
             ];
             
+            \Log::info('Attempting to get Google user...');
             $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')
                 ->stateless()
                 ->redirectUrl($redirectUri)
@@ -55,6 +62,13 @@ class GoogleController extends Controller
                 'email' => $googleUser->getEmail(),
                 'name' => $googleUser->getName(),
                 'id' => $googleUser->getId()
+            ]);
+            
+            \Log::info('Google user details:', [
+                'email' => $googleUser->getEmail(),
+                'name' => $googleUser->getName(),
+                'id' => $googleUser->getId(),
+                'avatar' => $googleUser->getAvatar()
             ]);
                 
             // Vérifier si l'utilisateur existe déjà
@@ -113,6 +127,7 @@ class GoogleController extends Controller
 
             // Rediriger vers le frontend avec le token
             $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+            \Log::info('Frontend URL:', ['frontend_url' => $frontendUrl]);
             
             if ($isNewUser) {
                 // Pour les nouveaux utilisateurs, transmettre les données essentielles dans l'URL
@@ -129,7 +144,8 @@ class GoogleController extends Controller
                 \Log::info('Google OAuth - Redirection vers création de mot de passe', [
                     'url' => $redirectUrl,
                     'user_id' => $user->id,
-                    'email' => $user->email
+                    'email' => $user->email,
+                    'user_data_encoded' => $userDataEncoded
                 ]);
                 return redirect()->away($redirectUrl);
             } else {
@@ -143,11 +159,13 @@ class GoogleController extends Controller
                 ];
                 
                 \Cache::put('temp_user_data_' . $user->id, $userData, 300); // 5 minutes
+                \Log::info('User data cached:', ['cache_key' => 'temp_user_data_' . $user->id, 'data' => $userData]);
                 
                 // Rediriger vers le dashboard
                 $redirectUrl = "$frontendUrl/google-callback?token=$token&user_id=$user->id";
                 
                 \Log::info('Google OAuth - Redirection vers dashboard avec données en cache', [
+                    'url' => $redirectUrl,
                     'user_id' => $user->id,
                     'email' => $user->email
                 ]);

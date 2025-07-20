@@ -152,6 +152,30 @@ Route::get('/test-mail-config', function() {
     }
 });
 
+Route::get('/test-logs', function() {
+    try {
+        // Test d'écriture de logs
+        \Log::info('Test log from API route', [
+            'timestamp' => now(),
+            'test_data' => 'This is a test log entry'
+        ]);
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Log test écrit avec succès',
+            'timestamp' => now()->toISOString(),
+            'log_file' => storage_path('logs/laravel.log')
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
