@@ -68,6 +68,58 @@ Route::get('/test-google-callback', function() {
     }
 });
 
+Route::get('/test-google-redirect', function() {
+    try {
+        // Test de la redirection Google
+        $controller = new \App\Http\Controllers\Auth\GoogleController();
+        $redirectResponse = $controller->redirectToGoogle();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Redirection Google fonctionne',
+            'response_type' => get_class($redirectResponse),
+            'status_code' => $redirectResponse->getStatusCode()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+Route::get('/test-socialite-config', function() {
+    try {
+        // Test de la configuration Socialite
+        $config = config('services.google');
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Configuration Socialite récupérée',
+            'config' => [
+                'client_id' => $config['client_id'] ? 'Définie' : 'Manquante',
+                'client_secret' => $config['client_secret'] ? 'Définie' : 'Manquante',
+                'redirect' => $config['redirect'] ? 'Définie' : 'Manquante'
+            ],
+            'env_vars' => [
+                'GOOGLE_CLIENT_ID' => env('GOOGLE_CLIENT_ID') ? 'Définie' : 'Manquante',
+                'GOOGLE_CLIENT_SECRET' => env('GOOGLE_CLIENT_SECRET') ? 'Définie' : 'Manquante',
+                'GOOGLE_REDIRECT_URI' => env('GOOGLE_REDIRECT_URI') ? 'Définie' : 'Manquante'
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/set-password', [AuthController::class, 'setPassword']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
