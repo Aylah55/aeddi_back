@@ -2,6 +2,26 @@
 
 echo "🚀 Démarrage de l'application Laravel..."
 
+# Définir les variables d'environnement par défaut si elles n'existent pas
+export APP_ENV=${APP_ENV:-production}
+export APP_DEBUG=${APP_DEBUG:-false}
+export APP_KEY=${APP_KEY:-base64:lRfSzEBXmA2GXhNb0YjZVhogf5AEZa7DVgE9Vf4d+ko=}
+export APP_URL=${APP_URL:-https://aeddi-back.onrender.com}
+export DB_CONNECTION=${DB_CONNECTION:-mysql}
+export DB_HOST=${DB_HOST:-shortline.proxy.rlwy.net}
+export DB_PORT=${DB_PORT:-53137}
+export DB_DATABASE=${DB_DATABASE:-railway}
+export DB_USERNAME=${DB_USERNAME:-root}
+export DB_PASSWORD=${DB_PASSWORD:-ZIgEfqPrlGTbppurvgOuSncpXlllLBaS}
+export LOG_CHANNEL=${LOG_CHANNEL:-stack}
+export LOG_LEVEL=${LOG_LEVEL:-error}
+export CACHE_DRIVER=${CACHE_DRIVER:-file}
+export SESSION_DRIVER=${SESSION_DRIVER:-file}
+export QUEUE_CONNECTION=${QUEUE_CONNECTION:-sync}
+export SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS:-localhost:3000,aeddi-front.onrender.com}
+export SESSION_DOMAIN=${SESSION_DOMAIN:-aeddi-front.onrender.com}
+export FRONTEND_URL=${FRONTEND_URL:-https://aeddi-front.onrender.com}
+
 # Installer les dépendances (si pas déjà fait)
 if [ ! -d "vendor" ]; then
     echo "📦 Installation des dépendances Composer..."
@@ -26,9 +46,9 @@ php artisan view:clear
 
 # Vérifier la configuration
 echo "🔧 Vérification de la configuration..."
-php artisan config:show APP_ENV
-php artisan config:show APP_DEBUG
-php artisan config:show APP_KEY
+echo "APP_ENV: $APP_ENV"
+echo "APP_DEBUG: $APP_DEBUG"
+echo "APP_KEY: $APP_KEY"
 
 # Test de connexion à la base de données
 echo "🗄️ Test de connexion à la base de données..."
