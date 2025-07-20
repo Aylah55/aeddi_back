@@ -5,6 +5,74 @@ services:
     plan: free
     buildCommand: composer install --no-dev --optimize-autoloader
     startCommand: ./start.sh
-    secretFiles:
-      - key: .env
-        name: .env
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        value: base64:lRfSzEBXmA2GXhNb0YjZVhogf5AEZa7DVgE9Vf4d+ko=
+      - key: APP_URL
+        value: https://aeddi-back.onrender.com
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: shortline.proxy.rlwy.net
+      - key: DB_PORT
+        value: 53137
+      - key: DB_DATABASE
+        value: railway
+      - key: DB_USERNAME
+        value: root
+      - key: DB_PASSWORD
+        value: ZIgEfqPrlGTbppurvgOuSncpXlllLBaS
+      - key: LOG_CHANNEL
+        value: stack
+      - key: LOG_LEVEL
+        value: error
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SANCTUM_STATEFUL_DOMAINS
+        value: localhost:3000,aeddi-front.onrender.com
+      - key: SESSION_DOMAIN
+        value: aeddi-front.onrender.com
+      - key: BROADCAST_DRIVER
+        value: log
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: FILESYSTEM_DRIVER
+        value: public
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: MEMCACHED_HOST
+        value: 127.0.0.1
+      - key: REDIS_HOST
+        value: 127.0.0.1
+      - key: REDIS_PASSWORD
+        value: null
+      - key: REDIS_PORT
+        value: 6379
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        value: brunobrayane@gmail.com
+      - key: MAIL_PASSWORD
+        value: munfyzicqteugtoq
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        value: brunobrayane@gmail.com
+      - key: MAIL_FROM_NAME
+        value: AEDDI
+      - key: JWT_SECRET
+        value: Da6lySkCGo2zZWuHHahmjcc1LENH7j5GHQJHv7xtHNJnTNdGctbHqBxZf6fX7Nuc
+      - key: FRONTEND_URL
+        value: https://aeddi-front.onrender.com
