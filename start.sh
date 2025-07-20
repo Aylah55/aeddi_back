@@ -28,6 +28,15 @@ if [ ! -d "vendor" ]; then
     composer install --no-dev --optimize-autoloader
 fi
 
+# Vérifier que Socialite est installé
+echo "🔍 Vérification de Laravel Socialite..."
+if [ ! -d "vendor/laravel/socialite" ]; then
+    echo "❌ Laravel Socialite n'est pas installé. Installation..."
+    composer require laravel/socialite
+else
+    echo "✅ Laravel Socialite est installé"
+fi
+
 # Créer les dossiers nécessaires et définir les permissions
 echo "📁 Création des dossiers et permissions..."
 mkdir -p storage/framework/cache
