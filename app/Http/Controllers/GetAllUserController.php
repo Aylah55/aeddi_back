@@ -27,9 +27,16 @@ class GetAllUserController extends Controller
                 'updated_at'
             )->get();
 
+            // Ajouter l'URL de la photo pour chaque utilisateur
+            $usersWithPhotoUrl = $users->map(function ($user) {
+                $userData = $user->toArray();
+                $userData['photo_url'] = $user->photo_url;
+                return $userData;
+            });
+
             return response()->json([
                 'status' => 'success',
-                'users' => $users
+                'users' => $usersWithPhotoUrl
             ]);
         } catch (\Exception $e) {
             return response()->json([

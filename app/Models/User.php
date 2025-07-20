@@ -121,7 +121,7 @@ class User extends Authenticatable
     public function getPhotoUrlAttribute()
     {
         if (!$this->photo) {
-            return 'https://i.pravatar.cc/100?img=' . rand(1, 70);
+            return null;
         }
 
         // Si c'est une URL externe (Google, Facebook)
@@ -130,6 +130,7 @@ class User extends Authenticatable
         }
 
         // Si c'est un fichier local stocké
-        return Storage::disk('public')->url($this->photo);
+        $appUrl = env('APP_URL', 'http://localhost:8000');
+        return $appUrl . '/storage/' . $this->photo;
     }
 }
