@@ -21,9 +21,7 @@ class NotificationController extends Controller
                 'created_at' => $notif->created_at->toDateTimeString(),
                 'is_read' => $notif->is_read,
                 'admin_name' => $notif->admin ? $notif->admin->prenom . ' ' . $notif->admin->nom : 'Administrateur',
-                'admin_avatar' => $notif->admin && $notif->admin->photo
-                    ? url($notif->admin->photo)
-                    : 'https://i.pravatar.cc/100?img=' . rand(1, 70),
+                'admin_avatar' => $notif->admin ? $notif->admin->photo_url : 'https://i.pravatar.cc/100?img=' . rand(1, 70),
             ];
         });
     }

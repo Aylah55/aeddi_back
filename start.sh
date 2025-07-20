@@ -67,6 +67,10 @@ php artisan tinker --execute="try { DB::connection()->getPdo(); echo '✅ Connex
 echo "🔄 Exécution des migrations..."
 php artisan migrate --force
 
+# Créer le lien symbolique pour le stockage
+echo "🔗 Création du lien symbolique pour le stockage..."
+php artisan storage:link
+
 # Vérifier les routes
 echo "🛣️ Vérification des routes..."
 php artisan route:list --compact
