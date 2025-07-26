@@ -61,6 +61,16 @@ class FacebookController extends Controller
                 ]);
                 $isNewUser = true;
                 
+                // Associer le nouvel utilisateur à toutes les cotisations existantes
+                if (!$isAdmin) {
+                    $cotisations = \App\Models\Cotisation::all();
+                    foreach ($cotisations as $cotisation) {
+                        $user->cotisations()->attach($cotisation->id, [
+                            'statut_paiement' => 'Non payé'
+                        ]);
+                    }
+                }
+                
                 \Log::info('Facebook OAuth - Nouvel utilisateur créé', [
                     'user_id' => $user->id,
                     'email' => $user->email

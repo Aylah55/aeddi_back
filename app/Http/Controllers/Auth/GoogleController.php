@@ -94,6 +94,16 @@ class GoogleController extends Controller
                 ]);
                 $isNewUser = true;
                 
+                // Associer le nouvel utilisateur à toutes les cotisations existantes
+                if (!$isAdmin) {
+                    $cotisations = \App\Models\Cotisation::all();
+                    foreach ($cotisations as $cotisation) {
+                        $user->cotisations()->attach($cotisation->id, [
+                            'statut_paiement' => 'Non payé'
+                        ]);
+                    }
+                }
+                
                 \Log::info('Google OAuth - Nouvel utilisateur créé', [
                     'user_id' => $user->id,
                     'email' => $user->email
@@ -114,6 +124,19 @@ class GoogleController extends Controller
                 // Vérifier si c'est un utilisateur Google qui n'a pas encore défini de mot de passe
                 if ($user->provider === 'google' && !$user->password_set) {
                     $isNewUser = true;
+                }
+            }
+
+            // S'assurer que l'utilisateur possède toutes les cotisations existantes
+            if (!$user->role || $user->role !== 'admin') {
+                $cotisations = \App\Models\Cotisation::all();
+                $cotisationIds = $user->cotisations()->pluck('cotisation_id')->toArray();
+                foreach ($cotisations as $cotisation) {
+                    if (!in_array($cotisation->id, $cotisationIds)) {
+                        $user->cotisations()->attach($cotisation->id, [
+                            'statut_paiement' => 'Non payé'
+                        ]);
+                    }
                 }
             }
 
