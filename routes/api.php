@@ -214,11 +214,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/activites', [CreateActivityController::class, '__invoke']);
     Route::put('/activite/{id}', UpdateActivityController::class);
     Route::delete('/activite/{id}', [App\Http\Controllers\DeleteActiviteController::class, 'destroy']);
+    Route::delete('/activite/{id}', [App\Http\Controllers\DeleteActiviteController::class, 'destroy']);
 
     // Cotisations
     Route::get('/cotisations', [GetCotisationController::class, '__invoke']);
     Route::post('/cotisations', [CreateCotisationController::class, '__invoke']);
     Route::put('/cotisation/{id}', [UpdateCotisationController::class, '__invoke']);
+    Route::delete('/cotisation/{id}', [App\Http\Controllers\DeleteCotisationController::class, 'destroy']);
     Route::delete('/cotisation/{id}', [App\Http\Controllers\DeleteCotisationController::class, 'destroy']);
     Route::get('/user/{id}/cotisations', [GetUserCotisationsController::class, '__invoke']);
     Route::get('/user/{id}/cotisations/status', [GetUserCotisationsStatusController::class, '__invoke']);
@@ -265,4 +267,10 @@ Route::post('/reset-password', function (Request $request) {
     } else {
         return response()->json(['message' => __($status)], 400);
     }
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/user/notifications', [App\Http\Controllers\UserNotificationController::class, 'index']);
+    Route::patch('/user/notifications/{id}/read', [App\Http\Controllers\UserNotificationController::class, 'markAsRead']);
+    Route::delete('/user/notifications/{id}', [App\Http\Controllers\UserNotificationController::class, 'destroy']);
 });
