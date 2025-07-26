@@ -198,6 +198,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    // ROUTES FIXES AVANT LA ROUTE DYNAMIQUE
+    Route::get('/user/notifications', [App\Http\Controllers\UserNotificationController::class, 'index']);
+    Route::patch('/user/notifications/{id}/read', [App\Http\Controllers\UserNotificationController::class, 'markAsRead']);
+    Route::delete('/user/notifications/{id}', [App\Http\Controllers\UserNotificationController::class, 'destroy']);
+    // ROUTE DYNAMIQUE APRÈS
     Route::get('/user/{id}', [GetUserController::class, 'getUserInfo']);
     Route::put('/user/{id}', [UpdateUserController::class, 'update']);
     Route::get('/users', [GetAllUserController::class, 'index']);
@@ -223,8 +228,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
     Route::delete('/notifications', [NotificationController::class, 'deleteAll']);
     Route::delete('/notification/{id}', [App\Http\Controllers\DeleteNotificationController::class, 'destroy']);
+    
+    // Nouvelles routes pour créer des notifications
+    Route::post('/notifications/create-for-all', [NotificationController::class, 'createForAllUsers']);
+    Route::post('/notifications/create-for-users', [NotificationController::class, 'createForUsers']);
+    Route::post('/notifications/create-for-user', [NotificationController::class, 'createForUser']);
+    
+    // Routes pour les notifications utilisateur (déplacées de auth:api vers auth:sanctum)
+    // Route::get('/user/notifications', [App\Http\Controllers\UserNotificationController::class, 'index']); // This line is moved
+    // Route::patch('/user/notifications/{id}/read', [App\Http\Controllers\UserNotificationController::class, 'markAsRead']); // This line is moved
+    // Route::delete('/user/notifications/{id}', [App\Http\Controllers\UserNotificationController::class, 'destroy']); // This line is moved
 });
-
 Route::middleware('auth:sanctum')->post('/messages/send', [MessageController::class, 'send']);
 Route::middleware('auth:sanctum')->get('/messages', function() {
     return Message::orderBy('sent_at', 'desc')->take(50)->get();
@@ -251,10 +265,4 @@ Route::post('/reset-password', function (Request $request) {
     } else {
         return response()->json(['message' => __($status)], 400);
     }
-});
-
-Route::middleware('auth:api')->group(function () {
-    Route::get('/user/notifications', [App\Http\Controllers\UserNotificationController::class, 'index']);
-    Route::patch('/user/notifications/{id}/read', [App\Http\Controllers\UserNotificationController::class, 'markAsRead']);
-    Route::delete('/user/notifications/{id}', [App\Http\Controllers\UserNotificationController::class, 'destroy']);
 });
