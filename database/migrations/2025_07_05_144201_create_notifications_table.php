@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained(); // destinataire
+            $table->foreignId('user_id')->nullable()->constrained(); // destinataire (optionnel pour les notifications globales)
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null'); // créateur
             $table->string('title');
             $table->text('message');
+            $table->string('type')->default('info'); // info, success, warning, error
             $table->boolean('is_read')->default(false);
             $table->timestamps();
         });
