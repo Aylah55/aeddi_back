@@ -63,15 +63,18 @@ return [
 
     'pgsql' => [
         'driver' => 'pgsql',
-        'host' => env('DB_HOST', 'dpg-d0gbk0buibrs73ff9g80-a.oregon-postgres.render.com'),
+        'host' => env('DB_HOST', 'dpg-d262i1ffte5s73e6iit0-a.oregon-postgres.render.com'),
         'port' => env('DB_PORT', '5432'),
-        'database' => env('DB_DATABASE', 'aeddi'),
-        'username' => env('DB_USERNAME', 'aeddi_user'),
-        'password' => env('DB_PASSWORD', '6Se7DSyXRpau9so3NVdN3EvuMVjinQ3f'),
+        'database' => env('DB_DATABASE', 'aeddi_db'),
+        'username' => env('DB_USERNAME', 'aeddi_db_user'),
+        'password' => env('DB_PASSWORD', ''),
         'charset' => 'utf8',
         'prefix' => '',
         'schema' => 'public',
         'sslmode' => 'require',
+        'options' => [
+            PDO::ATTR_TIMEOUT => 30,
+        ],
     ],
 
 
