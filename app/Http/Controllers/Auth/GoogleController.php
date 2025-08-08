@@ -15,8 +15,7 @@ class GoogleController extends Controller
 {
     public function redirectToGoogle()
     {
-        $redirectUri = env('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback');
-        
+        $redirectUri = env('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback');       
         // Configuration pour désactiver la vérification SSL en développement
         $config = [
             'curl' => [
@@ -91,6 +90,11 @@ class GoogleController extends Controller
                     'provider' => 'google', // Ajouter le provider
                     'provider_id' => $googleUser->getId(), // Ajouter l'ID Google
                     'role' => $isAdmin ? 'admin' : 'user', // rôle selon l'email
+                    'etablissement' => 'À définir', // Champ obligatoire
+                    'parcours' => 'À définir', // Champ obligatoire
+                    'niveau' => 'À définir', // Champ obligatoire
+                    'promotion' => 'À définir', // Champ obligatoire
+                    'telephone' => 'À définir', // Champ obligatoire
                 ]);
                 $isNewUser = true;
                 
@@ -192,8 +196,28 @@ class GoogleController extends Controller
         } catch (\Exception $e) {
             \Log::error('Erreur Google OAuth: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('Google OAuth - Détails de l\'erreur', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
+                'client_id' => env('GOOGLE_CLIENT_ID'),
+                'frontend_url' => env('FRONTEND_URL'),
+                'app_debug' => env('APP_DEBUG'),
+                'app_env' => env('APP_ENV'),
+                'error_code' => $e->getCode(),
+                'previous_error' => $e->getPrevious() ? $e->getPrevious()->getMessage() : null
+            ]);
+            
+            // Log complet de l'erreur pour débogage
+            \Log::error('Google OAuth - Erreur complète', [
+                'full_message' => $e->getMessage(),
+                'sql_state' => $e->getCode(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
-            return redirect()->away("$frontendUrl/login?error=google_auth_failed");
+            return redirect()->away("$frontendUrl/login?error=google_auth_failed&details=" . urlencode($e->getMessage()));
         }
     }
 
@@ -228,6 +252,11 @@ class GoogleController extends Controller
                 'provider' => 'google',
                 'provider_id' => $googleUser['sub'],
                 'role' => 'user',
+                'etablissement' => 'À définir', // Champ obligatoire
+                'parcours' => 'À définir', // Champ obligatoire
+                'niveau' => 'À définir', // Champ obligatoire
+                'promotion' => 'À définir', // Champ obligatoire
+                'telephone' => 'À définir', // Champ obligatoire
             ]);
         }
 
@@ -342,8 +371,7 @@ class GoogleController extends Controller
                 'cache_working' => $retrievedData === $testData,
                 'test_data' => $testData,
                 'retrieved_data' => $retrievedData
-            ]);
-            
+            ]);           
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

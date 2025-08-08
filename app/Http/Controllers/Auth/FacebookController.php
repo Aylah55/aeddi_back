@@ -58,6 +58,11 @@ class FacebookController extends Controller
                     'provider' => 'facebook', // Ajouter le provider
                     'provider_id' => $facebookUser->getId(), // Ajouter l'ID Facebook
                     'role' => $isAdmin ? 'admin' : 'user', // rôle selon l'email
+                    'etablissement' => 'À définir', // Champ obligatoire
+                    'parcours' => 'À définir', // Champ obligatoire
+                    'niveau' => 'À définir', // Champ obligatoire
+                    'promotion' => 'À définir', // Champ obligatoire
+                    'telephone' => 'À définir', // Champ obligatoire
                 ]);
                 $isNewUser = true;
                 
@@ -186,6 +191,11 @@ class FacebookController extends Controller
                 'provider' => 'facebook',
                 'provider_id' => $facebookUser['id'],
                 'role' => 'user',
+                'etablissement' => 'À définir', // Champ obligatoire
+                'parcours' => 'À définir', // Champ obligatoire
+                'niveau' => 'À définir', // Champ obligatoire
+                'promotion' => 'À définir', // Champ obligatoire
+                'telephone' => 'À définir', // Champ obligatoire
             ]);
         }
 

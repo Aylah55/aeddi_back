@@ -274,3 +274,118 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('/user/notifications/{id}/read', [App\Http\Controllers\UserNotificationController::class, 'markAsRead']);
     Route::delete('/user/notifications/{id}', [App\Http\Controllers\UserNotificationController::class, 'destroy']);
 });
+
+Route::get('/diagnostic-google-oauth', function() {
+    try {
+        $diagnostic = [
+            'timestamp' => now(),
+            'environment' => [
+                'app_env' => env('APP_ENV'),
+                'app_debug' => env('APP_DEBUG'),
+                'app_url' => env('APP_URL'),
+                'frontend_url' => env('FRONTEND_URL')
+            ],
+            'google_oauth' => [
+                'client_id' => env('GOOGLE_CLIENT_ID') ? '✅ Définie' : '❌ Manquante',
+                'client_secret' => env('GOOGLE_CLIENT_SECRET') ? '✅ Définie' : '❌ Manquante',
+                'redirect_uri' => env('GOOGLE_REDIRECT_URI') ? '✅ Définie' : '❌ Manquante'
+            ],
+            'socialite_config' => [
+                'client_id' => config('services.google.client_id') ? '✅ Définie' : '❌ Manquante',
+                'client_secret' => config('services.google.client_secret') ? '✅ Définie' : '❌ Manquante',
+                'redirect' => config('services.google.redirect') ? '✅ Définie' : '❌ Manquante'
+            ],
+            'sanctum' => [
+                'stateless_domains' => env('SANCTUM_STATEFUL_DOMAINS'),
+                'session_domain' => env('SESSION_DOMAIN')
+            ],
+            'database' => [
+                'connection' => env('DB_CONNECTION'),
+                'host' => env('DB_HOST'),
+                'database' => env('DB_DATABASE')
+            ]
+        ];
+
+        // Test de connexion à la base de données
+        try {
+            \DB::connection()->getPdo();
+            $diagnostic['database']['status'] = '✅ Connecté';
+        } catch (\Exception $e) {
+            $diagnostic['database']['status'] = '❌ Erreur: ' . $e->getMessage();
+        }
+
+        // Test de création d'instance GoogleController
+        try {
+            $controller = new \App\Http\Controllers\Auth\GoogleController();
+            $diagnostic['google_controller'] = '✅ Peut être instancié';
+        } catch (\Exception $e) {
+            $diagnostic['google_controller'] = '❌ Erreur: ' . $e->getMessage();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'diagnostic' => $diagnostic
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Erreur lors du diagnostic',
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+});
+
+Route::get('/debug-users-table', function() {
+    try {
+        // Récupérer la structure de la table users
+        $columns = \DB::select("
+            SELECT column_name, data_type, is_nullable, column_default
+            FROM information_schema.columns 
+            WHERE table_name = 'users' 
+            AND table_schema = 'public'
+            ORDER BY ordinal_position
+        ");
+        
+        // Tenter de créer un utilisateur minimal pour voir l'erreur exacte
+        try {
+            $testUser = \App\Models\User::create([
+                'nom' => 'Test',
+                'prenom' => 'User',
+                'email' => 'test-' . time() . '@example.com',
+                'password' => bcrypt('password'),
+                'provider' => 'test',
+                'provider_id' => 'test123',
+                'role' => 'user'
+            ]);
+            
+            $testUser->delete(); // Supprimer l'utilisateur de test
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Création d\'utilisateur réussie',
+                'table_structure' => $columns,
+                'fillable_fields' => (new \App\Models\User())->getFillable()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur lors de la création d\'utilisateur',
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'table_structure' => $columns,
+                'fillable_fields' => (new \App\Models\User())->getFillable()
+            ], 500);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Erreur lors de l\'examen de la table',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
