@@ -42,7 +42,6 @@ return [
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
-        
         'mysql' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', 'sql103.infinityfree.com'),
