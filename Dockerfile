@@ -2,8 +2,8 @@ FROM php:8.2-apache
 
 # Installe les dépendances système nécessaires, y compris libcurl4-openssl-dev
 RUN apt-get update && apt-get install -y \
-    git zip unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev libcurl4-openssl-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl curl
+    git zip unzip curl libpng-dev libonig-dev libxml2-dev libzip-dev libcurl4-openssl-dev libpq-dev \
+    && docker-php-ext-install pdo_mysql pdo_pgsql pgsql mbstring zip exif pcntl curl
 
 # Active mod_rewrite et headers pour .htaccess (important pour Sanctum / CORS)
 RUN a2enmod rewrite headers
