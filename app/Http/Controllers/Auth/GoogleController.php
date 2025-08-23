@@ -89,12 +89,13 @@ class GoogleController extends Controller
                     'password' => bcrypt(str()->random(24)), // Mot de passe temporaire
                     'provider' => 'google', // Ajouter le provider
                     'provider_id' => $googleUser->getId(), // Ajouter l'ID Google
-                    'role' => $isAdmin ? 'admin' : 'user', // rôle selon l'email
-                    'etablissement' => 'À définir', // Champ obligatoire
-                    'parcours' => 'À définir', // Champ obligatoire
-                    'niveau' => 'À définir', // Champ obligatoire
-                    'promotion' => 'À définir', // Champ obligatoire
-                    'telephone' => 'À définir', // Champ obligatoire
+                    'role' => $isAdmin ? 'admin' : 'Membre', // rôle selon l'email
+                    'sous_role' => '',
+                    'etablissement' => '',
+                    'parcours' => '', 
+                    'niveau' => '', 
+                    'promotion' => '',
+                    'telephone' => '', 
                 ]);
                 $isNewUser = true;
                 
@@ -251,12 +252,13 @@ class GoogleController extends Controller
                 'password' => Hash::make(Str::random(24)),
                 'provider' => 'google',
                 'provider_id' => $googleUser['sub'],
-                'role' => 'user',
-                'etablissement' => 'À définir', // Champ obligatoire
-                'parcours' => 'À définir', // Champ obligatoire
-                'niveau' => 'À définir', // Champ obligatoire
-                'promotion' => 'À définir', // Champ obligatoire
-                'telephone' => 'À définir', // Champ obligatoire
+                'role' => 'Membre',
+                'sous_role' => '',
+                'etablissement' => '', // Champ obligatoire
+                'parcours' => '', // Champ obligatoire
+                'niveau' => '', // Champ obligatoire
+                'promotion' => '', // Champ obligatoire
+                'telephone' => '', // Champ obligatoire
             ]);
         }
 

@@ -358,7 +358,7 @@ Route::get('/debug-users-table', function() {
                 'password' => bcrypt('password'),
                 'provider' => 'test',
                 'provider_id' => 'test123',
-                'role' => 'user'
+                'role' => 'Membre'
             ]);
             
             $testUser->delete(); // Supprimer l'utilisateur de test

@@ -57,12 +57,13 @@ class FacebookController extends Controller
                     'password' => bcrypt(str()->random(24)), // Mot de passe temporaire
                     'provider' => 'facebook', // Ajouter le provider
                     'provider_id' => $facebookUser->getId(), // Ajouter l'ID Facebook
-                    'role' => $isAdmin ? 'admin' : 'user', // rôle selon l'email
-                    'etablissement' => 'À définir', // Champ obligatoire
-                    'parcours' => 'À définir', // Champ obligatoire
-                    'niveau' => 'À définir', // Champ obligatoire
-                    'promotion' => 'À définir', // Champ obligatoire
-                    'telephone' => 'À définir', // Champ obligatoire
+                    'role' => $isAdmin ? 'admin' : 'Membre', // rôle selon l'email
+                    'sous_role' => '',
+                    'etablissement' => '', // Champ obligatoire
+                    'parcours' => '', // Champ obligatoire
+                    'niveau' => '', // Champ obligatoire
+                    'promotion' => '', // Champ obligatoire
+                    'telephone' => '', // Champ obligatoire
                 ]);
                 $isNewUser = true;
                 
@@ -190,12 +191,13 @@ class FacebookController extends Controller
                 'password' => Hash::make(Str::random(24)),
                 'provider' => 'facebook',
                 'provider_id' => $facebookUser['id'],
-                'role' => 'user',
-                'etablissement' => 'À définir', // Champ obligatoire
-                'parcours' => 'À définir', // Champ obligatoire
-                'niveau' => 'À définir', // Champ obligatoire
-                'promotion' => 'À définir', // Champ obligatoire
-                'telephone' => 'À définir', // Champ obligatoire
+                'role' => 'Membre',
+                'sous_role' => '',
+                'etablissement' => '', // Champ obligatoire
+                'parcours' => '', // Champ obligatoire
+                'niveau' => '', // Champ obligatoire
+                'promotion' => '', // Champ obligatoire
+                'telephone' => '', // Champ obligatoire
             ]);
         }
 
