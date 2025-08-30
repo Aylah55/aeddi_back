@@ -40,9 +40,9 @@ return [
     ),
     'path' => '/',
     'domain' => env('SESSION_DOMAIN'),
-    'secure' => true,
+    'secure' => env('SESSION_SECURE_COOKIE', false),
     'http_only' => true,
-    'same_site' => 'none',
+    'same_site' => env('SESSION_SAME_SITE', 'lax'),
     'partitioned' => false,
 
 ];
