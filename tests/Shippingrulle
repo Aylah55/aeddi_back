@@ -1,0 +1,263 @@
+<?php
+namespace App\Http\Controllers;
+
+use App\Models\Option;
+use App\Models\Post;
+use App\Models\PostMeta;
+use App\Models\ShippingZoneMethod;
+use App\Models\Utilisateurs;
+use Illuminate\Http\Request;
+
+class ShippingRuleController extends Controller
+{
+    public function index(Request $request)
+    {
+        $cartItems = $request->input('cart');
+        $promoCodes = $request->input('promo_codes');
+        $codeParrainage = $request->input('parrainnage_code');
+        $codeParrainageValid = $request->input('codeParrainageValid', false);
+
+        $shippingRulesResponse = $this->getAllShippingRules();
+        $shippingRulesData = $shippingRulesResponse->getData();
+
+        $vendorsWeights = [];
+        $vendorsShippingCosts = [];
+        $vendorsSubtotal = [];
+        $vendorsDiscounts = [];
+        $totalDiscountGlobal = 0;
+
+        foreach ($cartItems as $item) {
+            $isVirtual = $this->isVirtual($item);
+            if ($isVirtual) {
+                continue;
+            }
+
+            $productId = $item['productId'];
+            $variationId = $item['variationId'] ?? null;
+            $vendor = $this->getSlugVendor($productId);
+            $quantity = intval($item['quantity']);
+            $price = floatval($item['price']);
+
+            if ($variationId == null) {
+                $weight = PostMeta::where('post_id', $productId)
+                    ->where('meta_key', '_weight')
+                    ->value('meta_value');
+            } elseif ($variationId) {
+                $weight = PostMeta::where('post_id', $variationId)
+                    ->where('meta_key', '_weight')
+                    ->value('meta_value');
+            } else {
+                $weight = 0;
+            }
+
+            $weight = $weight ? floatval($weight) : 0;
+
+            $vendorsWeights[$vendor] = ($vendorsWeights[$vendor] ?? 0) + ($weight * $quantity);
+            $vendorsSubtotal[$vendor] = ($vendorsSubtotal[$vendor] ?? 0) + ($price * $quantity);
+        }
+
+        foreach ($vendorsWeights as $vendor => $totalWeight) {
+            $subtotal = $vendorsSubtotal[$vendor];
+
+            foreach ($shippingRulesData as $zone) {
+                foreach ($zone->rules as $rule) {
+                    if (isset($rule->price->min)) {
+                        $minOrder = floatval($rule->price->min);
+                        if ($subtotal >= $minOrder) {
+                            $vendorsShippingCosts[$vendor] = [
+                                'cost' => 0.0,
+                                'name' => $rule->name,
+                            ];
+                            break 2;
+                        }
+                    }
+
+                    if (isset($rule->weight)) {
+                        $min = isset($rule->weight->min) ? floatval($rule->weight->min) : 0;
+                        $max = isset($rule->weight->max) ? floatval($rule->weight->max) : PHP_INT_MAX;
+
+                        if ($totalWeight >= $min && $totalWeight < $max) {
+                            if (isset($rule->charge->base)) {
+                                $vendorsShippingCosts[$vendor] = [
+                                    'cost' => floatval($rule->charge->base),
+                                    'name' => $rule->name,
+                                ];
+                                break 2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($cartItems as $item) {
+            $isVirtual = $this->isVirtual($item);
+            if (!$isVirtual) {
+                continue;
+            }
+
+            $productId = $item['productId'];
+            $variationId = $item['variationId'] ?? null;
+            $vendor = $this->getSlugVendor($productId);
+            $quantity = intval($item['quantity']);
+            $price = floatval($item['price']);
+
+            $vendorsSubtotal[$vendor] = ($vendorsSubtotal[$vendor] ?? 0) + ($price * $quantity);
+        }
+
+        if ($promoCodes && $promoCodes['valid']) {
+            $amount = floatval($promoCodes['amount']);
+            $amount = floatval(str_replace(',', '.', $amount));
+            $type = $promoCodes['discount_type'] ?? 'unknown';
+
+            foreach ($vendorsSubtotal as $vendor => $subtotal) {
+                $discount = 0;
+
+                if ($type === 'percent') {
+                    $discount = round($subtotal * ($amount / 100), 2);
+                } elseif ($type === 'fixed_cart') {
+                    $nbVendors = count($vendorsSubtotal);
+                    $discount = round($amount / $nbVendors, 2);
+                }
+
+                $vendorsDiscounts[$vendor] = ($vendorsDiscounts[$vendor] ?? 0) + $discount;
+                $totalDiscountGlobal += $discount;
+            }
+        }
+
+        if ($codeParrainageValid) {
+            $nbVendors = count($vendorsSubtotal);
+            if ($nbVendors > 0) {
+                $parrainDiscount = 5.0;
+                $vendorDiscount = round($parrainDiscount / $nbVendors, 2);
+
+                foreach (array_keys($vendorsSubtotal) as $vendor) {
+                    $vendorsDiscounts[$vendor] = ($vendorsDiscounts[$vendor] ?? 0) + $vendorDiscount;
+                }
+
+                $totalDiscountGlobal += $parrainDiscount;
+            }
+        }
+
+        // ➤ Calcul total final
+        $totalWithShipping = [];
+        foreach ($vendorsSubtotal as $vendor => $subtotal) {
+            $shippingCost = $vendorsShippingCosts[$vendor]['cost'] ?? 0;
+            $discount = $vendorsDiscounts[$vendor] ?? 0;
+
+            $totalWithShipping[$vendor] = max(0, $subtotal - $discount + $shippingCost);
+        }
+
+        $checkOrdonnanceRequiredProduct = $this->checkOrdonnanceRequiredProduct($cartItems);
+
+        $thereIsTicketItem = $this->thereIsTicketItem($cartItems);
+
+        return response()->json([
+            'vendors_shipping_costs' => $vendorsShippingCosts,
+            'vendors_subtotal' => $vendorsSubtotal,
+            'vendors_discounts' => $vendorsDiscounts,
+            'total_with_shipping' => $totalWithShipping,
+            'total_discount_global' => $totalDiscountGlobal,
+            'promoCodes' => $promoCodes,
+            'codeParrainage' => $codeParrainage,
+            'codeParrainageValid' => $codeParrainageValid,
+            'checkOrdonnanceRequiredProduct' => $checkOrdonnanceRequiredProduct,
+            'thereIsTicketItem' => $thereIsTicketItem,
+            'message' => 'Calcul terminé avec réductions et livraison',
+        ]);
+    }
+
+    private function isVirtual($item)
+    {
+        $productId = $item['productId'];
+        $product = Post::where('ID', $productId)->first();
+
+        $isVirtual = $product->getMeta('_virtual') === 'yes' ?? false;
+        $isBooking = $product->getMeta('_wc_booking_block_cost') ?? false;
+
+        if ($isVirtual || $isBooking) {
+            return true;
+        }
+        if (!$isVirtual || !$isBooking) {
+            return false;
+        }
+    }
+
+    private function maybeUnserialize($value)
+    {
+        if ($this->isSerialized($value)) {
+            return @unserialize($value);
+        }
+        return $value;
+    }
+
+    private function isSerialized($data)
+    {
+        return @unserialize($data) !== false || $data === 'b:0;';
+    }
+
+    private function getAllShippingRules()
+    {
+        $methods = ShippingZoneMethod::where('method_id', 'wbsng')->get();
+
+        $rules = [];
+
+        foreach ($methods as $method) {
+            $optionName = 'wbsng_' . $method->instance_id . '_config';
+
+            $option = Option::where('option_name', $optionName)->first();
+
+            if ($option) {
+                $settings = $this->maybeUnserialize($option->option_value);
+
+                $rules[] = [
+                    'zone_id' => $method->zone_id,
+                    'instance_id' => $method->instance_id,
+                    'rules' => $settings['methods'][0]['rules'] ?? [],
+                ];
+            }
+        }
+        return response()->json($rules);
+    }
+
+    private function checkOrdonnanceRequiredProduct($carts)
+    {
+        $checkOrdonnanceRequiredProduct = false;
+        foreach ($carts as $item) {
+            $productId = $item['productId'];
+            $product = Post::where('ID', $productId)->first();
+            $ordonnanceRequire = $product->getMeta('prescription_required') === 'yes' ?? false;
+
+            if ($ordonnanceRequire) {
+                $checkOrdonnanceRequiredProduct = true;
+            }
+        }
+        return $checkOrdonnanceRequiredProduct;
+    }
+
+    private function thereIsTicketItem($carts)
+    {
+        $thereIsTicketItem = false;
+        foreach ($carts as $item) {
+            $productId = $item['productId'];
+            $product = Post::where('ID', $productId)->first();
+            $isTicketing = $product->getMeta('_isTicketing') === 'yes';
+
+            if ($isTicketing) {
+                $thereIsTicketItem = true;
+            }
+        }
+        return $thereIsTicketItem;
+    }
+
+    private function getSlugVendor($productId)
+    {
+        $vendor = null;
+        $product = Post::where('ID', $productId)->first();
+
+        $vendorUser = Utilisateurs::with('meta')->where('ID', $product->author->ID)->first();
+        $vendor = $vendorUser->user_nicename ?? null;
+
+        return $vendor;
+    }
+}
